@@ -3,7 +3,7 @@
 #include <atomic>
 #include <iostream>
 #include <map>
-#include <algorithm> // for std::sort
+#include <algorithm>
 #include "Barrier/Barrier.h"
 
 struct ThreadContext;
@@ -20,9 +20,10 @@ typedef struct ThreadContext{
     int thread_id;
     int input_size;
     std::map<int, ThreadContext*> threads_context_map;
-    std::vector<IntermediateVec>* vectors_after_shuffle;
+    std::vector<IntermediateVec*>* vectors_after_shuffle;
     std::atomic<int>* num_of_vectors_in_shuffle;
     std::atomic<int>* num_of_shuffled_elements;
+    pthread_mutex_t* mutex_on_reduce_stage;
 } ThreadContext;
 
 
@@ -113,7 +114,7 @@ K2* get_max_key(ThreadContext* tc){
 
 void shuffle(void* context){
   ThreadContext* tc = (ThreadContext*) context;
-  std::vector<IntermediateVec> shuffle_vec = std::vector<IntermediateVec>();
+  std::vector<IntermediateVec*> shuffle_vec = std::vector<IntermediateVec*>();
   while(!is_all_empty(tc)){
     K2* max_key = get_max_key (tc);
     IntermediateVec new_vec = IntermediateVec();
@@ -126,7 +127,7 @@ void shuffle(void* context){
           (*(tc->num_of_shuffled_elements))++;
       }
     }
-    shuffle_vec.push_back (new_vec);
+    shuffle_vec.push_back (&new_vec);
     (*(tc->num_of_vectors_in_shuffle))++;
   }
   tc->vectors_after_shuffle = &shuffle_vec;
@@ -178,14 +179,22 @@ void* thread_run(void* arguments)
 
     sort_stage((void*)thread_context);
 
+    thread_context->barrier->barrier();
 
+    if(thread_context->thread_id == 0){
+        shuffle ((void*)thread_context);
+    }
 
     thread_context->barrier->barrier();
 
-  //shuffle if thread_id_is_0
-
-    //block
-
+    while (!thread_context->vectors_after_shuffle->empty()){
+        pthread_mutex_lock (thread_context->mutex_on_reduce_stage);
+        if (!thread_context->vectors_after_shuffle->empty()){
+          client->reduce ((*(thread_context->vectors_after_shuffle)).at(0), (void*)thread_context);
+          (*(thread_context->vectors_after_shuffle)).erase((*(thread_context->vectors_after_shuffle)).begin());
+        }
+        pthread_mutex_unlock (thread_context->mutex_on_reduce_stage);
+    }
     //reduce
 
     //end
@@ -227,6 +236,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     print_input_vector(inputVec);
 
     Barrier* barrier = new Barrier(multiThreadLevel);
+    pthread_mutex_t* mutex_on_reduce_stage;
 
     int inputSize = inputVec.size();
     for (int i = 0; i < multiThreadLevel; ++i)
@@ -242,6 +252,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         threadContext->thread_id = i;
         threadContext->input_size = inputSize;
         threadContext->client = const_cast<MapReduceClient*>(&client);
+        threadContext->mutex_on_reduce_stage = mutex_on_reduce_stage;
         std::cout << "allocated thread" << i << std::endl;
 
         job_data->threads_context_map[i] = threadContext;
