@@ -24,3 +24,17 @@ void getJobState(JobHandle job, JobState* state){
 
 
 
+JobHandle startMapReduceJob(const MapReduceClient& client,
+                            const InputVec& inputVec, OutputVec& outputVec,
+                            int multiThreadLevel)
+{
+    pthread_t* threads = new pthread_t[multiThreadLevel];
+
+    for (int i = 0; i < multiThreadLevel; ++i) {
+        pthread_create(threads + i, NULL, client.map, contexts + i);
+    }
+
+    for (int i = 0; i < MT_LEVEL; ++i) {
+        pthread_join(threads[i], NULL);
+    }
+}
