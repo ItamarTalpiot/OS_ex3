@@ -27,6 +27,10 @@ typedef struct{
     std::atomic<int>* num_output_elements;
 } JobData;
 
+void print_library_error(std::string str){
+  std::cout << str << std::endl;
+}
+
 void emit2 (K2* key, V2* value, void* context){
   ThreadContext* tc = (ThreadContext *) context;
   IntermediatePair pair = IntermediatePair(key, value);
@@ -84,19 +88,6 @@ void thread_run(void* arguments)
 
     //end
 }
-
-// when gets called, return the right partition to the thread id ([0, num_of_threads - 1])
-std::pair<int, int> get_partition(int thread_id, int size, int num_of_threads){
-  int base_size = size / num_of_threads;
-  int remainder = size % num_of_threads;
-  int start = thread_id * base_size + std::min(thread_id, remainder);
-  int end = start + base_size;
-  if (thread_id < remainder) {
-      end++;
-  }
-  return std::make_pair(start, end);
-}
-
 
 JobHandle startMapReduceJob(const MapReduceClient& client,
                             const InputVec& inputVec, OutputVec& outputVec,
