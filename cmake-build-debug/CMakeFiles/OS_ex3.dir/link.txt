@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o -o OS_ex3 
+/usr/bin/c++ -g CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o -o OS_ex3 

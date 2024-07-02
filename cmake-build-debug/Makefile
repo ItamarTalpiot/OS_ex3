@@ -129,29 +129,29 @@ OS_ex3/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/build
 .PHONY : OS_ex3/fast
 
-Atomic/atomicdemo_multivar.o: Atomic/atomicdemo_multivar.cpp.o
-.PHONY : Atomic/atomicdemo_multivar.o
+MapReduceFramework.o: MapReduceFramework.cpp.o
+.PHONY : MapReduceFramework.o
 
 # target to build an object file
-Atomic/atomicdemo_multivar.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o
-.PHONY : Atomic/atomicdemo_multivar.cpp.o
+MapReduceFramework.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o
+.PHONY : MapReduceFramework.cpp.o
 
-Atomic/atomicdemo_multivar.i: Atomic/atomicdemo_multivar.cpp.i
-.PHONY : Atomic/atomicdemo_multivar.i
+MapReduceFramework.i: MapReduceFramework.cpp.i
+.PHONY : MapReduceFramework.i
 
 # target to preprocess a source file
-Atomic/atomicdemo_multivar.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.i
-.PHONY : Atomic/atomicdemo_multivar.cpp.i
+MapReduceFramework.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.i
+.PHONY : MapReduceFramework.cpp.i
 
-Atomic/atomicdemo_multivar.s: Atomic/atomicdemo_multivar.cpp.s
-.PHONY : Atomic/atomicdemo_multivar.s
+MapReduceFramework.s: MapReduceFramework.cpp.s
+.PHONY : MapReduceFramework.s
 
 # target to generate assembly for a file
-Atomic/atomicdemo_multivar.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.s
-.PHONY : Atomic/atomicdemo_multivar.cpp.s
+MapReduceFramework.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.s
+.PHONY : MapReduceFramework.cpp.s
 
 # Help Target
 help:
@@ -162,9 +162,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... OS_ex3"
-	@echo "... Atomic/atomicdemo_multivar.o"
-	@echo "... Atomic/atomicdemo_multivar.i"
-	@echo "... Atomic/atomicdemo_multivar.s"
+	@echo "... MapReduceFramework.o"
+	@echo "... MapReduceFramework.i"
+	@echo "... MapReduceFramework.s"
 .PHONY : help
 
 

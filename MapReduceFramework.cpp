@@ -1,6 +1,7 @@
 #include "MapReduceFramework.h"
 #include <pthread.h>
-
+#include <atomic>
+#include <iostream>
 
 typedef struct{
     JobState *job_state;
@@ -26,9 +27,6 @@ void emit3 (K3* key, V3* value, void* context){
   jb->output_vec.push_back (pair);
   (*(jb->num_output_elements))++;
 }
-
-    // map
-
 
 void getJobState(JobHandle job, JobState* state){
   JobData* jb = (JobData*) job;
@@ -56,6 +54,18 @@ void thread_run(void* arguments)
     //reduce
 
     //end
+}
+
+// when gets called, return the right partition to the thread id ([0, num_of_threads - 1])
+std::pair<int, int> get_partition(int thread_id, int size, int num_of_threads){
+  int base_size = size / num_of_threads;
+  int remainder = size % num_of_threads;
+  int start = thread_id * base_size + std::min(thread_id, remainder);
+  int end = start + base_size;
+  if (thread_id < remainder) {
+      end++;
+  }
+  return std::make_pair(start, end);
 }
 
 
@@ -111,4 +121,15 @@ void waitForJob(JobHandle job)
 
     // TODO: change state to ended
     closeJobHandle(job);
+}
+
+int main(int argc, char** argv){
+  int num_of_threads = 8;
+  int size = 3;
+  for(int i = 0; i < num_of_threads; i++){
+    std::pair<int, int> pair = get_partition(i, size, num_of_threads);
+    int start = pair.first;
+    int end = pair.second;
+    std::cout << "id: " << i << " got: start: " << start << " end: " << end << std::endl;
+  }
 }

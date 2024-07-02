@@ -69,28 +69,28 @@ include CMakeFiles/OS_ex3.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/OS_ex3.dir/flags.make
 
-CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o: CMakeFiles/OS_ex3.dir/flags.make
-CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o: ../Atomic/atomicdemo_multivar.cpp
-CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o: CMakeFiles/OS_ex3.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o -MF CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o.d -o CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o -c /mnt/c/semesterD/os/ex3/OS_ex3/Atomic/atomicdemo_multivar.cpp
+CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o: CMakeFiles/OS_ex3.dir/flags.make
+CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o: ../MapReduceFramework.cpp
+CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o: CMakeFiles/OS_ex3.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o -MF CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o.d -o CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o -c /mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.cpp
 
-CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/semesterD/os/ex3/OS_ex3/Atomic/atomicdemo_multivar.cpp > CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.i
+CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.cpp > CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.i
 
-CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/semesterD/os/ex3/OS_ex3/Atomic/atomicdemo_multivar.cpp -o CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.s
+CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.cpp -o CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.s
 
 # Object files for target OS_ex3
 OS_ex3_OBJECTS = \
-"CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o"
+"CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o"
 
 # External object files for target OS_ex3
 OS_ex3_EXTERNAL_OBJECTS =
 
-OS_ex3: CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o
+OS_ex3: CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o
 OS_ex3: CMakeFiles/OS_ex3.dir/build.make
 OS_ex3: CMakeFiles/OS_ex3.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable OS_ex3"

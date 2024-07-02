@@ -7,8 +7,8 @@ include_directories(.)
 include_directories(Barrier)
 
 add_executable(OS_ex3
-        
-        Atomic/atomicdemo_multivar.cpp
+
+        MapReduceFramework.cpp
         Barrier/Barrier.h
         MapReduceClient.h
         MapReduceFramework.h)

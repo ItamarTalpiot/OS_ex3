@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/mnt/c/semesterD/os/ex3/OS_ex3/Atomic/atomicdemo_multivar.cpp" "CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o" "gcc" "CMakeFiles/OS_ex3.dir/Atomic/atomicdemo_multivar.cpp.o.d"
+  "/mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.cpp" "CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o" "gcc" "CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o.d"
   )
 
 # Targets to which this target links.

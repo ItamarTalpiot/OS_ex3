@@ -86,13 +86,13 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/Atomic/atomicdemo_multivar.cpp">
-			<Option target="OS_ex3"/>
-		</Unit>
 		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/Barrier/Barrier.h">
 			<Option target="OS_ex3"/>
 		</Unit>
 		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/MapReduceClient.h">
+			<Option target="OS_ex3"/>
+		</Unit>
+		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.cpp">
 			<Option target="OS_ex3"/>
 		</Unit>
 		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.h">
