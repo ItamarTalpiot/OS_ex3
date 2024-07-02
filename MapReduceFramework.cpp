@@ -6,10 +6,8 @@
 
 
 typedef struct{
-
     IntermediateVec intermediate_vec;
     OutputVec& output_vec;
-    std::atomic<int>* curr_input_index;
     std::atomic<int>* num_intermediate_elements;
     std::atomic<int>* num_output_elements;
 
@@ -23,6 +21,7 @@ typedef struct{
     InputVec& inputVec;
     std::map<int, ThreadContext*> threads_context_map;
     OutputVec output_vec;
+    std::atomic<int>* curr_input_index;
     std::atomic<int>* num_intermediate_elements;
     std::atomic<int>* num_output_elements;
 } JobData;
@@ -54,7 +53,7 @@ void getJobState(JobHandle job, JobState* state){
 
 typedef struct thread_args{
     MapReduceClient *client;
-    JobData *context;
+    JobData *job_data;
     int thread_id;
     int input_size;
 } thread_args;
@@ -65,18 +64,16 @@ void thread_run(void* arguments)
     MapReduceClient* client = t_args->client;
     JobData* job_data = t_args->job_data;
     int thread_id = t_args->thread_id;
-    std::atomic<int>* curr_index = context->curr_input_index;
+    ThreadContext * thread_context = job_data->threads_context_map[thread_id];
+    std::atomic<int>* curr_index = job_data->curr_input_index;
+    int old_value;
 
-    while(*curr_index < t_args->input_size)
+    while((old_value = (*curr_index)++) < t_args->input_size)
     {
-        (*curr_index)++;
-        ThreadContext* context;//Todo: = intermidate_cevs[thread_id];
-        InputPair pair = job_data->inputVec[(*curr_index) - 1];
-        client->map(pair.first, pair.second, (void*)context);
+        InputPair pair = job_data->inputVec[old_value];
+        client->map(pair.first, pair.second, (void*)thread_context);
 
     }
-
-    //map
 
     //block
 
@@ -115,18 +112,28 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     job_data->threads = threads;
     job_data->num_of_threads = multiThreadLevel;
     job_data->inputVec = inputVec;
-    job_data->intermediate_vec = IntermediateVec ();
+    job_data->threads_context_map = std::map<int, ThreadContext*>();
     job_data->output_vec = outputVec;
-    *job_data->curr_input_index = 0;
+    *(job_data->curr_input_index) = 0;
+    *(job_data->num_intermediate_elements) = 0;
+    *(job_data->num_output_elements) = 0;
 
     int inputSize = inputVec.size();
     for (int i = 0; i < multiThreadLevel; ++i)
     {
         thread_args* t_args = (thread_args*) malloc(sizeof(thread_args));
         t_args->client = const_cast<MapReduceClient*>(&client);
-        t_args->context = job_data;
+        t_args->job_data = job_data;
         t_args->thread_id = i;
         t_args->input_size = job_data->inputVec.size();
+
+        ThreadContext * threadContext = (ThreadContext*) malloc(sizeof(ThreadContext));
+        threadContext->num_output_elements = job_data->num_output_elements;
+        threadContext->num_intermediate_elements = job_data->num_intermediate_elements;
+        threadContext->output_vec = outputVec;
+        threadContext->intermediate_vec = IntermediateVec ();
+
+        t_args->job_data->threads_context_map[i] = threadContext;
 
         //start_index, end_index = get_partition(size, thread_id)
         if (t_args->thread_id < multiThreadLevel)  //TODO: in free check if thread before free
@@ -136,7 +143,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     }
 
 
-    return (void*) job_data ;
+    return (void*) job_data;
 }
 
 
