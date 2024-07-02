@@ -2,30 +2,43 @@
 #include <pthread.h>
 #include <atomic>
 #include <iostream>
+#include <map>
+
+
+typedef struct{
+
+    IntermediateVec intermediate_vec;
+    OutputVec output_vec;
+    std::atomic<int>* num_intermediate_elements;
+    std::atomic<int>* num_output_elements;
+
+} ThreadContext;
+
 
 typedef struct{
     JobState *job_state;
     pthread_t *threads;
     int num_of_threads;
-    IntermediateVec intermediate_vec;
+    std::map<int, ThreadContext*> threads_context_map;
     OutputVec output_vec;
     std::atomic<int>* num_intermediate_elements;
     std::atomic<int>* num_output_elements;
 } JobData;
 
+
 void emit2 (K2* key, V2* value, void* context){
-  JobData* jb = (JobData*) context;
+  ThreadContext* tc = (ThreadContext *) context;
   IntermediatePair pair = IntermediatePair(key, value);
-  jb->intermediate_vec.push_back (pair);
-  (*(jb->num_intermediate_elements))++;
+  tc->intermediate_vec.push_back (pair);
+  (*(tc->num_intermediate_elements))++;
 }
 
 
 void emit3 (K3* key, V3* value, void* context){
-  JobData* jb = (JobData*) context;
+  ThreadContext * tc = (ThreadContext*) context;
   OutputPair pair = OutputPair(key, value);
-  jb->output_vec.push_back (pair);
-  (*(jb->num_output_elements))++;
+  tc->output_vec.push_back (pair);
+  (*(tc->num_output_elements))++;
 }
 
 void getJobState(JobHandle job, JobState* state){
