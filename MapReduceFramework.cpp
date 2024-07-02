@@ -99,10 +99,10 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     // Allocate and initialize JobData
     JobData* job_data = (JobData*) malloc(sizeof(JobData));
     if (job_data == NULL) {
-        perror("Failed to allocate memory for JobData");
+        perror("Failed to allocate memory for JobData"); //TODO: error handle
         free(threads);
         free(j_state);
-        return EXIT_FAILURE;
+        exit(1);
     }
     job_data->job_state = j_state;
     job_data->threads = threads;
