@@ -20,7 +20,7 @@ typedef struct{
     int num_of_threads;
     InputVec& inputVec;
     std::map<int, ThreadContext*> threads_context_map;
-    OutputVec output_vec;
+    OutputVec& output_vec;
     std::atomic<int>* curr_input_index;
     std::atomic<int>* num_intermediate_elements;
     std::atomic<int>* num_output_elements;
