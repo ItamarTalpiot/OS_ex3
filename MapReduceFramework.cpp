@@ -4,16 +4,20 @@
 #include <iostream>
 #include <map>
 #include <algorithm> // for std::sort
-#include "Barrier.h"
+#include "Barrier/Barrier.h"
 
 
 typedef struct{
     IntermediateVec intermediate_vec;
     OutputVec& output_vec;
+    InputVec& input_vec;
     std::atomic<int>* num_intermediate_elements;
     std::atomic<int>* num_output_elements;
+    std::atomic<int>* curr_input_index;
     Barrier* barrier;
-
+    MapReduceClient* client;
+    int thread_id;
+    int input_size;
 } ThreadContext;
 
 
@@ -80,19 +84,16 @@ void print_after_map_vector(void* context){
 
 void* thread_run(void* arguments)
 {
-    thread_args* t_args = (thread_args*) arguments;
-    MapReduceClient* client = t_args->client;
-    JobData* job_data = t_args->job_data;
-    int thread_id = t_args->thread_id;
-    ThreadContext * thread_context = job_data->threads_context_map[thread_id];
-    std::atomic<int>* curr_index = job_data->curr_input_index;
+    ThreadContext * thread_context = (ThreadContext*) arguments;
+    MapReduceClient* client = thread_context->client;
+    int thread_id = thread_context->thread_id;
+    std::atomic<int>* curr_index = thread_context->curr_input_index;
     int old_value;
 
-    while((old_value = (*curr_index)++) < t_args->input_size)
+    while((old_value = (*curr_index)++) < thread_context->input_size)
     {
-        InputPair pair = job_data->inputVec[old_value];
+        InputPair pair = thread_context->input_vec[old_value];
         client->map(pair.first, pair.second, (void*)thread_context);
-
     }
 
     sort_stage((void*)thread_context);
@@ -141,27 +142,28 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     *(job_data->num_intermediate_elements) = 0;
     *(job_data->num_output_elements) = 0;
 
+    Barrier* barrier = new Barrier(multiThreadLevel);
+
     int inputSize = inputVec.size();
     for (int i = 0; i < multiThreadLevel; ++i)
     {
-        thread_args* t_args = (thread_args*) malloc(sizeof(thread_args));
-        t_args->client = const_cast<MapReduceClient*>(&client);
-        t_args->job_data = job_data;
-        t_args->thread_id = i;
-        t_args->input_size = job_data->inputVec.size();
-
         ThreadContext * threadContext = (ThreadContext*) malloc(sizeof(ThreadContext));
         threadContext->num_output_elements = job_data->num_output_elements;
         threadContext->num_intermediate_elements = job_data->num_intermediate_elements;
         threadContext->output_vec = outputVec;
         threadContext->intermediate_vec = IntermediateVec ();
+        threadContext->input_vec = inputVec;
+        threadContext->barrier = barrier;
+        threadContext->thread_id = i;
+        threadContext->input_size = inputSize;
+        threadContext->client = const_cast<MapReduceClient*>(&client);
 
-        t_args->job_data->threads_context_map[i] = threadContext;
+        job_data->threads_context_map[i] = threadContext;
 
         //start_index, end_index = get_partition(size, thread_id)
-        if (t_args->thread_id < multiThreadLevel)  //TODO: in free check if thread before free
+        if (threadContext->thread_id < inputSize)  //TODO: in free check if thread before free
         {
-            pthread_create(threads+i, NULL, thread_run, (void*)t_args);
+            pthread_create(threads+i, NULL, thread_run, (void*)threadContext);
         }
     }
 
@@ -183,7 +185,32 @@ void waitForJob(JobHandle job)
     closeJobHandle(job);
 }
 
-void closeJobHandle(JobHandle job){
+void closeJobHandle(JobHandle job)
+{
+    JobData * job_data = (JobData*) job;
+    if (job_data->job_state->stage != REDUCE_STAGE || job_data->job_state->percentage != 100)
+    {
+        waitForJob(job);
+    }
 
+    if (job)
+    {
+        if (job_data->threads)
+            delete[] job_data->threads;
+        if (job_data->job_state)
+            free(job_data->job_state);
+        for (int i=0; i < job_data->num_of_threads; i++)
+        {
+            ThreadContext * curr_context = job_data->threads_context_map[i];
+
+            if (curr_context)
+            {
+                if (curr_context->barrier)
+                    delete curr_context->barrier;
+            }
+        }
+
+        free(job_data);
+    }
 }
 
