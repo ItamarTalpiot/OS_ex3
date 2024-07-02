@@ -7,7 +7,9 @@ typedef struct{
     JobState *job_state;
     pthread_t *threads;
     IntermediateVec intermediate_vec;
+    OutputVec output_vec;
     std::atomic<int>* num_intermediate_elements;
+    std::atomic<int>* num_output_elements;
 } JobData;
 
 void emit2 (K2* key, V2* value, void* context){
@@ -16,6 +18,15 @@ void emit2 (K2* key, V2* value, void* context){
   jb->intermediate_vec.push_back (pair);
   (*(jb->num_intermediate_elements))++;
 }
+
+
+void emit3 (K3* key, V3* value, void* context){
+  JobData* jb = (JobData*) context;
+  OutputPair pair = OutputPair(key, value);
+  jb->output_vec.push_back (pair);
+  (*(jb->num_output_elements))++;
+}
+
 
 void getJobState(JobHandle job, JobState* state){
   JobData* jb = (JobData*) job;
