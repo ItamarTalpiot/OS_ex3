@@ -1,17 +1,21 @@
 #include "MapReduceFramework.h"
 #include <pthread.h>
+#include <atomic>
 
 
 typedef struct{
     JobState *job_state;
-    pthread_t threads[];
+    pthread_t *threads;
+    IntermediateVec intermediate_vec;
+    std::atomic<int>* num_intermediate_elements;
 } JobData;
 
 void emit2 (K2* key, V2* value, void* context){
-
-
+  JobData* jb = (JobData*) context;
+  IntermediatePair pair = IntermediatePair(key, value);
+  jb->intermediate_vec.push_back (pair);
+  (*(jb->num_intermediate_elements))++;
 }
-
 
 void getJobState(JobHandle job, JobState* state){
   JobData* jb = (JobData*) job;
