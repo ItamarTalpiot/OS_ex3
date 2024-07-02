@@ -58,7 +58,7 @@ typedef struct thread_args{
     int input_size;
 } thread_args;
 
-void thread_run(void* arguments)
+void* thread_run(void* arguments)
 {
     thread_args* t_args = (thread_args*) arguments;
     MapReduceClient* client = t_args->client;
@@ -90,7 +90,8 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
                             const InputVec& inputVec, OutputVec& outputVec,
                             int multiThreadLevel)
 {
-    pthread_t* threads = new pthread_t[multiThreadLevel];
+//    pthread_t* threads = new pthread_t[multiThreadLevel];
+    pthread_t threads[multiThreadLevel];
     JobState* j_state = (JobState*) malloc(sizeof(JobState));
     if (j_state == NULL) {
         std::cout << "Failed to allocate memory for JobState";  //TODO: error handle
@@ -138,7 +139,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         //start_index, end_index = get_partition(size, thread_id)
         if (t_args->thread_id < multiThreadLevel)  //TODO: in free check if thread before free
         {
-            pthread_create(threads + i, NULL, thread_run, (void*)t_args);
+            pthread_create(threads+i, NULL, thread_run, (void*)t_args);
         }
     }
 
