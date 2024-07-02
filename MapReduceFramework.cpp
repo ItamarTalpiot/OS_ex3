@@ -7,6 +7,7 @@ typedef struct{
     JobState *job_state;
     pthread_t *threads;
     int num_of_threads;
+    InputVec inputVec;
     IntermediateVec intermediate_vec;
     OutputVec output_vec;
     std::atomic<int>* num_intermediate_elements;
@@ -35,7 +36,7 @@ void getJobState(JobHandle job, JobState* state){
 }
 
 typedef struct thread_args{
-    const MapReduceClient &client;
+    MapReduceClient *client;
     JobData *context;
     int thread_id;
     int start_index;
@@ -44,12 +45,24 @@ typedef struct thread_args{
 
 void thread_run(void* arguments)
 {
-    thread_args* args = (thread_args*) arguments;
+    thread_args* t_args = (thread_args*) arguments;
+    MapReduceClient* client = t_args->client;
+    JobData* context = t_args->context;
+    int thread_id = t_args->thread_id;
+
+    //map
+    for (int i=t_args->start_index; i < t_args->end_index; i++)
+    {
+        K1 k = context->
+        client->map()
+
+    }
 
     //block
 
-
     //shuffle if thread_id_is_0
+
+    //block
 
     //reduce
 
@@ -98,15 +111,18 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     for (int i = 0; i < multiThreadLevel; ++i)
     {
         thread_args* t_args = (thread_args*) malloc(sizeof(thread_args));
-        t_args->client = client;
+        t_args->client = const_cast<MapReduceClient*>(&client);
         t_args->context = job_data;
         t_args->thread_id = i;
-
-
-        pthread_create(threads + i, NULL, thread_run, contexts + i);
+        //start_index, end_index = get_partition(size, thread_id)
+        if (t_args->thread_id < multiThreadLevel)  //TODO: in free check if thread before free
+        {
+            pthread_create(threads + i, NULL, thread_run, (void*)t_args);
+        }
     }
 
 
+    return (void*) job_data ;
 }
 
 
