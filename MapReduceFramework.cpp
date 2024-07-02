@@ -8,7 +8,8 @@
 typedef struct{
 
     IntermediateVec intermediate_vec;
-    OutputVec output_vec;
+    OutputVec& output_vec;
+    std::atomic<int>* curr_input_index;
     std::atomic<int>* num_intermediate_elements;
     std::atomic<int>* num_output_elements;
 
@@ -19,7 +20,7 @@ typedef struct{
     JobState *job_state;
     pthread_t *threads;
     int num_of_threads;
-    InputVec inputVec;
+    InputVec& inputVec;
     std::map<int, ThreadContext*> threads_context_map;
     OutputVec output_vec;
     std::atomic<int>* num_intermediate_elements;
@@ -51,24 +52,27 @@ typedef struct thread_args{
     MapReduceClient *client;
     JobData *context;
     int thread_id;
-    int start_index;
-    int end_index;
+    int input_size;
 } thread_args;
 
 void thread_run(void* arguments)
 {
     thread_args* t_args = (thread_args*) arguments;
     MapReduceClient* client = t_args->client;
-    JobData* context = t_args->context;
+    JobData* job_data = t_args->job_data;
     int thread_id = t_args->thread_id;
+    std::atomic<int>* curr_index = context->curr_input_index;
 
-    //map
-    for (int i=t_args->start_index; i < t_args->end_index; i++)
+    while(*curr_index < t_args->input_size)
     {
-        K1 k = context->
-        client->map()
+        (*curr_index)++;
+        ThreadContext* context;//Todo: = intermidate_cevs[thread_id];
+        InputPair pair = job_data->inputVec[(*curr_index) - 1];
+        client->map(pair.first, pair.second, (void*)context);
 
     }
+
+    //map
 
     //block
 
@@ -118,6 +122,11 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     }
     job_data->job_state = j_state;
     job_data->threads = threads;
+    job_data->num_of_threads = multiThreadLevel;
+    job_data->inputVec = inputVec;
+    job_data->intermediate_vec = IntermediateVec ();
+    job_data->output_vec = outputVec;
+    *job_data->curr_input_index = 0;
 
     int inputSize = inputVec.size();
     for (int i = 0; i < multiThreadLevel; ++i)
@@ -126,6 +135,8 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         t_args->client = const_cast<MapReduceClient*>(&client);
         t_args->context = job_data;
         t_args->thread_id = i;
+        t_args->input_size = job_data->inputVec.size();
+
         //start_index, end_index = get_partition(size, thread_id)
         if (t_args->thread_id < multiThreadLevel)  //TODO: in free check if thread before free
         {
