@@ -9,8 +9,8 @@
 
 typedef struct{
     IntermediateVec intermediate_vec;
-    OutputVec& output_vec;
-    InputVec& input_vec;
+    OutputVec* output_vec;
+    const InputVec* input_vec;
     std::atomic<int>* num_intermediate_elements;
     std::atomic<int>* num_output_elements;
     std::atomic<int>* curr_input_index;
@@ -25,13 +25,14 @@ typedef struct{
     JobState *job_state;
     pthread_t *threads;
     int num_of_threads;
-    InputVec& inputVec;
+    const InputVec* inputVec;
     std::map<int, ThreadContext*> threads_context_map;
-    OutputVec& output_vec;
+    OutputVec* output_vec;
     std::atomic<int>* curr_input_index;
     std::atomic<int>* num_intermediate_elements;
     std::atomic<int>* num_output_elements;
 } JobData;
+
 
 void print_library_error(std::string str){
   std::cout << "system error: " << str << std::endl;
@@ -48,7 +49,7 @@ void emit2 (K2* key, V2* value, void* context){
 void emit3 (K3* key, V3* value, void* context){
   ThreadContext * tc = (ThreadContext*) context;
   OutputPair pair = OutputPair(key, value);
-  tc->output_vec.push_back (pair);
+  tc->output_vec->push_back (pair);
   (*(tc->num_output_elements))++;
 }
 
@@ -82,6 +83,23 @@ void print_after_map_vector(void* context){
   std::cout << std::endl;
 }
 
+void print_input_vector(InputVec vec)
+{
+    std::cout << "input vec:" << std::endl;
+    for (InputPair pair : vec) {
+        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
+    }
+}
+
+void print_iter_vector(IntermediateVec vec)
+{
+    std::cout << "iter vec:" << std::endl;
+    for (IntermediatePair pair : vec) {
+        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
+    }
+}
+
+
 void* thread_run(void* arguments)
 {
     ThreadContext * thread_context = (ThreadContext*) arguments;
@@ -89,14 +107,20 @@ void* thread_run(void* arguments)
     int thread_id = thread_context->thread_id;
     std::atomic<int>* curr_index = thread_context->curr_input_index;
     int old_value;
+    std::cout << "running thread" << thread_id << std::endl;
 
     while((old_value = (*curr_index)++) < thread_context->input_size)
     {
-        InputPair pair = thread_context->input_vec[old_value];
+        InputPair pair = (*thread_context->input_vec)[old_value];
         client->map(pair.first, pair.second, (void*)thread_context);
+        std::cout << old_value << std::endl;
     }
 
+    print_iter_vector(thread_context->intermediate_vec);
+
     sort_stage((void*)thread_context);
+
+
 
     thread_context->barrier->barrier();
 
@@ -123,7 +147,6 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     j_state->stage = UNDEFINED_STAGE;
     j_state->percentage = 0.0f;
 
-
     // Allocate and initialize JobData
     JobData* job_data = (JobData*) malloc(sizeof(JobData));
     if (job_data == NULL) {
@@ -132,15 +155,18 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         free(j_state);
         exit(1);
     }
+
     job_data->job_state = j_state;
     job_data->threads = threads;
     job_data->num_of_threads = multiThreadLevel;
-    job_data->inputVec = inputVec;
+    job_data->inputVec = &inputVec;
     job_data->threads_context_map = std::map<int, ThreadContext*>();
-    job_data->output_vec = outputVec;
-    *(job_data->curr_input_index) = 0;
-    *(job_data->num_intermediate_elements) = 0;
-    *(job_data->num_output_elements) = 0;
+    job_data->output_vec = &outputVec;
+    job_data->curr_input_index = new std::atomic<int>(0);
+    job_data->num_intermediate_elements = new std::atomic<int>(0);
+    job_data->num_output_elements = new std::atomic<int>(0);
+
+    print_input_vector(inputVec);
 
     Barrier* barrier = new Barrier(multiThreadLevel);
 
@@ -149,14 +175,16 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     {
         ThreadContext * threadContext = (ThreadContext*) malloc(sizeof(ThreadContext));
         threadContext->num_output_elements = job_data->num_output_elements;
+        threadContext->curr_input_index = job_data->curr_input_index;
         threadContext->num_intermediate_elements = job_data->num_intermediate_elements;
-        threadContext->output_vec = outputVec;
+        threadContext->output_vec = &outputVec;
         threadContext->intermediate_vec = IntermediateVec ();
-        threadContext->input_vec = inputVec;
+        threadContext->input_vec = &inputVec;
         threadContext->barrier = barrier;
         threadContext->thread_id = i;
         threadContext->input_size = inputSize;
         threadContext->client = const_cast<MapReduceClient*>(&client);
+        std::cout << "allocated thread" << i << std::endl;
 
         job_data->threads_context_map[i] = threadContext;
 
