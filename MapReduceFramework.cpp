@@ -6,8 +6,9 @@
 #include <algorithm> // for std::sort
 #include "Barrier/Barrier.h"
 
+struct ThreadContext;
 
-typedef struct{
+typedef struct ThreadContext{
     IntermediateVec intermediate_vec;
     OutputVec& output_vec;
     InputVec& input_vec;
@@ -18,6 +19,10 @@ typedef struct{
     MapReduceClient* client;
     int thread_id;
     int input_size;
+    std::map<int, ThreadContext*> threads_context_map;
+    std::vector<IntermediateVec>* vectors_after_shuffle;
+    std::atomic<int>* num_of_vectors_in_shuffle;
+    std::atomic<int>* num_of_shuffled_elements;
 } ThreadContext;
 
 
@@ -69,10 +74,63 @@ bool compare_intermediate_pair(const IntermediatePair& pair1, const Intermediate
   return *(pair1.first) < *(pair2.first);
 }
 
-void sort_stage( void* context){
-  ThreadContext* tc = (ThreadContext*) context;
-  std::sort(tc->intermediate_vec.begin(), tc->intermediate_vec.end(), compare_intermediate_pair);
+void sort_stage(void* context)
+{
+  ThreadContext *tc = (ThreadContext *) context;
+  std::sort (tc->intermediate_vec.begin (), tc->intermediate_vec.end (), compare_intermediate_pair);
 }
+
+bool is_all_empty(ThreadContext* tc)
+{
+  for (auto it: tc->threads_context_map)
+    {
+      if (!it.second->intermediate_vec.empty ())
+        {
+          return false;
+        }
+    }
+  return true;
+}
+
+K2* get_max_key(ThreadContext* tc){
+  K2* max_key = nullptr;
+  for(auto it: tc->threads_context_map){
+    if (!it.second->intermediate_vec.empty()){
+      K2* cur_key = it.second->intermediate_vec.at(0).first;
+      if(max_key == nullptr){
+        max_key = cur_key;
+      }
+      else{
+        if(*max_key < *cur_key){
+          max_key = cur_key;
+        }
+      }
+    }
+  }
+  return max_key;
+}
+
+void shuffle(void* context){
+  ThreadContext* tc = (ThreadContext*) context;
+  std::vector<IntermediateVec> shuffle_vec = std::vector<IntermediateVec>();
+  while(!is_all_empty(tc)){
+    K2* max_key = get_max_key (tc);
+    IntermediateVec new_vec = IntermediateVec();
+    for(auto it: tc->threads_context_map){
+      while(!it.second->intermediate_vec.empty() &&
+          !(*(it.second->intermediate_vec.back().first) < *max_key)
+          && !((*max_key) < *(it.second->intermediate_vec.back().first))){
+        new_vec.push_back (it.second->intermediate_vec.back());
+        it.second->intermediate_vec.pop_back();
+          (*(tc->num_of_shuffled_elements))++;
+      }
+    }
+    shuffle_vec.push_back (new_vec);
+    (*(tc->num_of_vectors_in_shuffle))++;
+  }
+  tc->vectors_after_shuffle = &shuffle_vec;
+}
+
 
 void print_after_map_vector(void* context){
   ThreadContext* tc = (ThreadContext*)context;

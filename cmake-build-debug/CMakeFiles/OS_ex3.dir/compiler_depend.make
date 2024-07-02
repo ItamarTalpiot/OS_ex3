@@ -199,7 +199,14 @@ CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o: ../MapReduceFramework.cpp \
   /usr/include/c++/11/bits/uses_allocator.h \
   /usr/include/c++/11/bits/invoke.h \
   /usr/include/c++/11/bits/stl_multimap.h \
-  /usr/include/c++/11/bits/erase_if.h
+  /usr/include/c++/11/bits/erase_if.h \
+  /usr/include/c++/11/algorithm \
+  /usr/include/c++/11/bits/stl_algo.h \
+  /usr/include/c++/11/bits/algorithmfwd.h \
+  /usr/include/c++/11/bits/stl_heap.h \
+  /usr/include/c++/11/bits/stl_tempbuf.h \
+  /usr/include/c++/11/bits/uniform_int_dist.h \
+  ../Barrier/Barrier.h
 
 CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o: ../Sample\ Client/SampleClient.cpp \
   /usr/include/stdc-predef.h \
@@ -379,6 +386,12 @@ CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o: ../Sample\ Client/Sample
 
 ../Sample\ Client/SampleClient.cpp:
 
+/usr/include/c++/11/bits/stl_heap.h:
+
+/usr/include/c++/11/bits/algorithmfwd.h:
+
+/usr/include/c++/11/bits/stl_algo.h:
+
 /usr/include/c++/11/bits/erase_if.h:
 
 /usr/include/c++/11/bits/uses_allocator.h:
@@ -456,6 +469,8 @@ CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o: ../Sample\ Client/Sample
 /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
 
 /usr/include/c++/11/string:
+
+../Barrier/Barrier.h:
 
 /usr/include/c++/11/bits/locale_classes.h:
 
@@ -675,6 +690,8 @@ CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o: ../Sample\ Client/Sample
 
 /usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
 
+/usr/include/c++/11/bits/stl_tempbuf.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
@@ -733,6 +750,8 @@ CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o: ../Sample\ Client/Sample
 
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 
+/usr/include/c++/11/algorithm:
+
 /usr/include/x86_64-linux-gnu/bits/select.h:
 
 /usr/include/c++/11/backward/binders.h:
@@ -752,6 +771,8 @@ CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o: ../Sample\ Client/Sample
 /usr/include/c++/11/cwchar:
 
 /usr/include/c++/11/bits/nested_exception.h:
+
+/usr/include/c++/11/bits/uniform_int_dist.h:
 
 /usr/include/c++/11/bits/cxxabi_init_exception.h:
 
