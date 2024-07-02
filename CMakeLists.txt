@@ -7,7 +7,7 @@ include_directories(.)
 include_directories(Barrier)
 
 add_executable(OS_ex3
-
+        "Sample Client/SampleClient.cpp"
         MapReduceFramework.cpp
         Barrier/Barrier.h
         MapReduceClient.h

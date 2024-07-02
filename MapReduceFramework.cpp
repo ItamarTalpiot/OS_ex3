@@ -3,6 +3,8 @@
 #include <atomic>
 #include <iostream>
 #include <map>
+#include <algorithm> // for std::sort
+#include "Barrier.h"
 
 
 typedef struct{
@@ -10,6 +12,7 @@ typedef struct{
     OutputVec& output_vec;
     std::atomic<int>* num_intermediate_elements;
     std::atomic<int>* num_output_elements;
+    Barrier* barrier;
 
 } ThreadContext;
 
@@ -27,7 +30,7 @@ typedef struct{
 } JobData;
 
 void print_library_error(std::string str){
-  std::cout << str << std::endl;
+  std::cout << "system error: " << str << std::endl;
 }
 
 void emit2 (K2* key, V2* value, void* context){
@@ -58,6 +61,23 @@ typedef struct thread_args{
     int input_size;
 } thread_args;
 
+bool compare_intermediate_pair(const IntermediatePair& pair1, const IntermediatePair& pair2){
+  return *(pair1.first) < *(pair2.first);
+}
+
+void sort_stage( void* context){
+  ThreadContext* tc = (ThreadContext*) context;
+  std::sort(tc->intermediate_vec.begin(), tc->intermediate_vec.end(), compare_intermediate_pair);
+}
+
+void print_after_map_vector(void* context){
+  ThreadContext* tc = (ThreadContext*)context;
+  for (size_t i = 0; i < tc->intermediate_vec.size(); ++i) {
+      std::cout << (tc->intermediate_vec[i].first) << " ";
+    }
+  std::cout << std::endl;
+}
+
 void* thread_run(void* arguments)
 {
     thread_args* t_args = (thread_args*) arguments;
@@ -75,9 +95,11 @@ void* thread_run(void* arguments)
 
     }
 
-    //block
+    sort_stage((void*)thread_context);
 
-    //shuffle if thread_id_is_0
+    thread_context->barrier->barrier();
+
+  //shuffle if thread_id_is_0
 
     //block
 
@@ -90,11 +112,11 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
                             const InputVec& inputVec, OutputVec& outputVec,
                             int multiThreadLevel)
 {
-//    pthread_t* threads = new pthread_t[multiThreadLevel];
-    pthread_t threads[multiThreadLevel];
+    pthread_t* threads = new pthread_t[multiThreadLevel];
+//    pthread_t threads[multiThreadLevel];
     JobState* j_state = (JobState*) malloc(sizeof(JobState));
     if (j_state == NULL) {
-        std::cout << "Failed to allocate memory for JobState";  //TODO: error handle
+        print_library_error ("Failed to allocate memory for JobState");
         exit(1);
     }
     j_state->stage = UNDEFINED_STAGE;
@@ -104,8 +126,8 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     // Allocate and initialize JobData
     JobData* job_data = (JobData*) malloc(sizeof(JobData));
     if (job_data == NULL) {
-        perror("Failed to allocate memory for JobData"); //TODO: error handle
-        free(threads);
+        print_library_error ("Failed to allocate memory for JobData");
+        delete[](threads);
         free(j_state);
         exit(1);
     }
@@ -161,13 +183,7 @@ void waitForJob(JobHandle job)
     closeJobHandle(job);
 }
 
-int main(int argc, char** argv){
-  int num_of_threads = 8;
-  int size = 3;
-  for(int i = 0; i < num_of_threads; i++){
-    std::pair<int, int> pair = get_partition(i, size, num_of_threads);
-    int start = pair.first;
-    int end = pair.second;
-    std::cout << "id: " << i << " got: start: " << start << " end: " << end << std::endl;
-  }
+void closeJobHandle(JobHandle job){
+
 }
+

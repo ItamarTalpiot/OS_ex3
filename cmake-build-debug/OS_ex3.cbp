@@ -98,6 +98,9 @@
 		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.h">
 			<Option target="OS_ex3"/>
 		</Unit>
+		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/Sample Client/SampleClient.cpp">
+			<Option target="OS_ex3"/>
+		</Unit>
 		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

@@ -153,6 +153,30 @@ MapReduceFramework.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.s
 .PHONY : MapReduceFramework.cpp.s
 
+Sample_Client/SampleClient.o: Sample_Client/SampleClient.cpp.o
+.PHONY : Sample_Client/SampleClient.o
+
+# target to build an object file
+Sample_Client/SampleClient.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o
+.PHONY : Sample_Client/SampleClient.cpp.o
+
+Sample_Client/SampleClient.i: Sample_Client/SampleClient.cpp.i
+.PHONY : Sample_Client/SampleClient.i
+
+# target to preprocess a source file
+Sample_Client/SampleClient.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.i
+.PHONY : Sample_Client/SampleClient.cpp.i
+
+Sample_Client/SampleClient.s: Sample_Client/SampleClient.cpp.s
+.PHONY : Sample_Client/SampleClient.s
+
+# target to generate assembly for a file
+Sample_Client/SampleClient.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.s
+.PHONY : Sample_Client/SampleClient.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -165,6 +189,9 @@ help:
 	@echo "... MapReduceFramework.o"
 	@echo "... MapReduceFramework.i"
 	@echo "... MapReduceFramework.s"
+	@echo "... Sample_Client/SampleClient.o"
+	@echo "... Sample_Client/SampleClient.i"
+	@echo "... Sample_Client/SampleClient.s"
 .PHONY : help
 
 
