@@ -303,7 +303,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     job_data->atomic_counter = new std::atomic<uint64_t>(0);
 
 //    print_input_vector(inputVec);
-
+ //mn
     Barrier* barrier = new Barrier(multiThreadLevel);
 
     pthread_mutex_t* mutex_on_reduce_stage = new pthread_mutex_t ();
