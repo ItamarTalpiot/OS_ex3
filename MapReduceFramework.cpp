@@ -87,9 +87,9 @@ void sort_stage(void* context)
 
 bool is_all_empty(ThreadContext* tc)
 {
-  for (auto it: tc->threads_context_map)
+  for (const auto& it: tc->threads_context_map)
     {
-      if (!it.second->intermediate_vec.empty ())
+      if (!(it.second->intermediate_vec.empty ()))
         {
           return false;
         }
@@ -205,7 +205,7 @@ void* thread_run(void* arguments)
 
     std::cout << "enetring  barrier" << thread_id << std::endl;
     thread_context->barrier->barrier();
-    std::cout << "enetring shuffle after barrier" << thread_id << std::endl;
+    std::cout << "enetring weird itamar thing after barrier" << thread_id << std::endl;
 
     // changing to shuffle
     uint64_t counter = thread_context->atomic_counter->load();
@@ -214,6 +214,9 @@ void* thread_run(void* arguments)
                                       (static_cast<uint64_t>(input_size) << 33); //TODO: change input_size
     thread_context->job_state->stage = SHUFFLE_STAGE;
     thread_context->job_state->percentage = 0;
+
+  std::cout << "enetring shuffle after barrier" << thread_id << std::endl;
+
   //shuffle if thread_id_is_0
     if(thread_context->thread_id == 0){
         shuffle ((void*)thread_context);
@@ -222,6 +225,7 @@ void* thread_run(void* arguments)
     thread_context->job_state->percentage = 100;
 
     thread_context->barrier->barrier();
+
     std::cout << "starting reduce stage after barrier" << thread_id << std::endl;
     thread_context->job_state->stage = REDUCE_STAGE;
     thread_context->job_state->percentage = 0;
@@ -286,6 +290,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         threadContext->num_output_elements = job_data->num_output_elements;
         threadContext->curr_input_index = job_data->curr_input_index;
         threadContext->num_intermediate_elements = job_data->num_intermediate_elements;
+        threadContext->threads_context_map = job_data->threads_context_map;
         threadContext->output_vec = &outputVec;
         threadContext->intermediate_vec = IntermediateVec ();
         threadContext->input_vec = &inputVec;

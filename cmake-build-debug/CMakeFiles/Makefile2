@@ -63,6 +63,7 @@ CMAKE_BINARY_DIR = /mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
+all: CMakeFiles/libMapReduceFramework.a.dir/all
 all: CMakeFiles/OS_ex3.dir/all
 .PHONY : all
 
@@ -71,14 +72,41 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
+clean: CMakeFiles/libMapReduceFramework.a.dir/clean
 clean: CMakeFiles/OS_ex3.dir/clean
 .PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/libMapReduceFramework.a.dir
+
+# All Build rule for target.
+CMakeFiles/libMapReduceFramework.a.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/libMapReduceFramework.a.dir/build.make CMakeFiles/libMapReduceFramework.a.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/libMapReduceFramework.a.dir/build.make CMakeFiles/libMapReduceFramework.a.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=4,5 "Built target libMapReduceFramework.a"
+.PHONY : CMakeFiles/libMapReduceFramework.a.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/libMapReduceFramework.a.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/libMapReduceFramework.a.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/libMapReduceFramework.a.dir/rule
+
+# Convenience name for target.
+libMapReduceFramework.a: CMakeFiles/libMapReduceFramework.a.dir/rule
+.PHONY : libMapReduceFramework.a
+
+# clean rule for target.
+CMakeFiles/libMapReduceFramework.a.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/libMapReduceFramework.a.dir/build.make CMakeFiles/libMapReduceFramework.a.dir/clean
+.PHONY : CMakeFiles/libMapReduceFramework.a.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/OS_ex3.dir
 
 # All Build rule for target.
-CMakeFiles/OS_ex3.dir/all:
+CMakeFiles/OS_ex3.dir/all: CMakeFiles/libMapReduceFramework.a.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=1,2,3 "Built target OS_ex3"
@@ -86,7 +114,7 @@ CMakeFiles/OS_ex3.dir/all:
 
 # Build rule for subdir invocation for target.
 CMakeFiles/OS_ex3.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/OS_ex3.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/OS_ex3.dir/rule

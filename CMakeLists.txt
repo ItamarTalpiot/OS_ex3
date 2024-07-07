@@ -6,9 +6,14 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(.)
 include_directories(Barrier)
 
+add_library(libMapReduceFramework.a STATIC
+        MapReduceFramework.cpp)
+
 add_executable(OS_ex3
-        "Sample Client/SampleClient.cpp"
-        MapReduceFramework.cpp
+        SampleClient.cpp
         Barrier/Barrier.h
+        Barrier/Barrier.cpp
         MapReduceClient.h
         MapReduceFramework.h)
+
+target_link_libraries(OS_ex3 "libMapReduceFramework.a")

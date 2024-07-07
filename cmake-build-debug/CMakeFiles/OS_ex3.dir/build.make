@@ -69,45 +69,46 @@ include CMakeFiles/OS_ex3.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/OS_ex3.dir/flags.make
 
-CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o: CMakeFiles/OS_ex3.dir/flags.make
-CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o: ../Sample\ Client/SampleClient.cpp
-CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o: CMakeFiles/OS_ex3.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o -MF CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o.d -o CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o -c "/mnt/c/semesterD/os/ex3/OS_ex3/Sample Client/SampleClient.cpp"
+CMakeFiles/OS_ex3.dir/SampleClient.cpp.o: CMakeFiles/OS_ex3.dir/flags.make
+CMakeFiles/OS_ex3.dir/SampleClient.cpp.o: ../SampleClient.cpp
+CMakeFiles/OS_ex3.dir/SampleClient.cpp.o: CMakeFiles/OS_ex3.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/OS_ex3.dir/SampleClient.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OS_ex3.dir/SampleClient.cpp.o -MF CMakeFiles/OS_ex3.dir/SampleClient.cpp.o.d -o CMakeFiles/OS_ex3.dir/SampleClient.cpp.o -c /mnt/c/semesterD/os/ex3/OS_ex3/SampleClient.cpp
 
-CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/mnt/c/semesterD/os/ex3/OS_ex3/Sample Client/SampleClient.cpp" > CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.i
+CMakeFiles/OS_ex3.dir/SampleClient.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/OS_ex3.dir/SampleClient.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/semesterD/os/ex3/OS_ex3/SampleClient.cpp > CMakeFiles/OS_ex3.dir/SampleClient.cpp.i
 
-CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/mnt/c/semesterD/os/ex3/OS_ex3/Sample Client/SampleClient.cpp" -o CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.s
+CMakeFiles/OS_ex3.dir/SampleClient.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/OS_ex3.dir/SampleClient.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/semesterD/os/ex3/OS_ex3/SampleClient.cpp -o CMakeFiles/OS_ex3.dir/SampleClient.cpp.s
 
-CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o: CMakeFiles/OS_ex3.dir/flags.make
-CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o: ../MapReduceFramework.cpp
-CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o: CMakeFiles/OS_ex3.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o -MF CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o.d -o CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o -c /mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.cpp
+CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o: CMakeFiles/OS_ex3.dir/flags.make
+CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o: ../Barrier/Barrier.cpp
+CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o: CMakeFiles/OS_ex3.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o -MF CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o.d -o CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o -c /mnt/c/semesterD/os/ex3/OS_ex3/Barrier/Barrier.cpp
 
-CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.cpp > CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.i
+CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/semesterD/os/ex3/OS_ex3/Barrier/Barrier.cpp > CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.i
 
-CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.cpp -o CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.s
+CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/semesterD/os/ex3/OS_ex3/Barrier/Barrier.cpp -o CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.s
 
 # Object files for target OS_ex3
 OS_ex3_OBJECTS = \
-"CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o" \
-"CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o"
+"CMakeFiles/OS_ex3.dir/SampleClient.cpp.o" \
+"CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o"
 
 # External object files for target OS_ex3
 OS_ex3_EXTERNAL_OBJECTS =
 
-OS_ex3: CMakeFiles/OS_ex3.dir/Sample_Client/SampleClient.cpp.o
-OS_ex3: CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o
+OS_ex3: CMakeFiles/OS_ex3.dir/SampleClient.cpp.o
+OS_ex3: CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o
 OS_ex3: CMakeFiles/OS_ex3.dir/build.make
+OS_ex3: liblibMapReduceFramework.a.a
 OS_ex3: CMakeFiles/OS_ex3.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable OS_ex3"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/OS_ex3.dir/link.txt --verbose=$(VERBOSE)
