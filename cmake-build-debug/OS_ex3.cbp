@@ -149,7 +149,7 @@
 		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/MapReduceFramework.h">
 			<Option target="OS_ex3"/>
 		</Unit>
-		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/SampleClient.cpp">
+		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/test1-1_thread_1_process.cpp">
 			<Option target="OS_ex3"/>
 		</Unit>
 		<Unit filename="/mnt/c/semesterD/os/ex3/OS_ex3/CMakeLists.txt">

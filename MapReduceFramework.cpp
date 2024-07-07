@@ -9,7 +9,7 @@
 struct ThreadContext;
 
 typedef struct ThreadContext{
-    IntermediateVec intermediate_vec;
+    IntermediateVec *intermediate_vec;
     OutputVec* output_vec;
     const InputVec* input_vec;
     std::atomic<int>* num_intermediate_elements;
@@ -19,8 +19,8 @@ typedef struct ThreadContext{
     MapReduceClient* client;
     int thread_id;
     int input_size;
-    std::map<int, ThreadContext*> threads_context_map;
-    std::vector<IntermediateVec*> vectors_after_shuffle;
+    std::map<int, ThreadContext*> *threads_context_map;
+    std::vector<IntermediateVec*> *vectors_after_shuffle;
     std::atomic<int>* num_of_vectors_in_shuffle;
     std::atomic<int>* num_of_shuffled_elements;
     std::atomic<int>* reduce_running_index;
@@ -35,13 +35,14 @@ typedef struct{
     pthread_t *threads;
     int num_of_threads;
     const InputVec* inputVec;
-    std::map<int, ThreadContext*> threads_context_map;
-    std::vector<IntermediateVec*> vectors_after_shuffle;
+    std::map<int, ThreadContext*> *threads_context_map;
+    std::vector<IntermediateVec*> *vectors_after_shuffle;
     OutputVec* output_vec;
     std::atomic<int>* curr_input_index;
     std::atomic<int>* num_intermediate_elements;
     std::atomic<int>* num_output_elements;
     std::atomic<int>* reduce_running_index;
+    std::atomic<int>* num_of_vectors_in_shuffle;
     std::atomic<uint64_t>* atomic_counter;
 } JobData;
 
@@ -53,7 +54,7 @@ void print_library_error(std::string str){
 void emit2 (K2* key, V2* value, void* context){
   ThreadContext* tc = (ThreadContext *) context;
   IntermediatePair pair = IntermediatePair(key, value);
-  tc->intermediate_vec.push_back (pair);
+  tc->intermediate_vec->push_back (pair);
   (*(tc->num_intermediate_elements))++;
 }
 
@@ -85,14 +86,14 @@ bool compare_intermediate_pair(const IntermediatePair& pair1, const Intermediate
 void sort_stage(void* context)
 {
   ThreadContext *tc = (ThreadContext *) context;
-  std::sort (tc->intermediate_vec.begin (), tc->intermediate_vec.end (), compare_intermediate_pair);
+  std::sort (tc->intermediate_vec->begin (), tc->intermediate_vec->end (), compare_intermediate_pair);
 }
 
 bool is_all_empty(ThreadContext* tc)
 {
-  for (const auto& it: tc->threads_context_map)
+  for (const auto& it: *(tc->threads_context_map))
     {
-      if (!(it.second->intermediate_vec.empty ()))
+      if (!(it.second->intermediate_vec->empty ()))
         {
           return false;
         }
@@ -102,9 +103,9 @@ bool is_all_empty(ThreadContext* tc)
 
 K2* get_max_key(ThreadContext* tc){
   K2* max_key = nullptr;
-  for(auto it: tc->threads_context_map){
-    if (!it.second->intermediate_vec.empty()){
-      K2* cur_key = it.second->intermediate_vec.at(0).first;
+  for(auto it: *(tc->threads_context_map)){
+    if (!it.second->intermediate_vec->empty()){
+      K2* cur_key = it.second->intermediate_vec->at(0).first;
       if(max_key == nullptr){
         max_key = cur_key;
       }
@@ -120,16 +121,15 @@ K2* get_max_key(ThreadContext* tc){
 
 void shuffle(void* context){
   ThreadContext* tc = (ThreadContext*) context;
-  std::vector<IntermediateVec*> shuffle_vec = std::vector<IntermediateVec*>();
   while(!is_all_empty(tc)){
     K2* max_key = get_max_key (tc);
-    IntermediateVec new_vec = IntermediateVec();
-    for(auto it: tc->threads_context_map){
-      while(!it.second->intermediate_vec.empty() &&
-          !(*(it.second->intermediate_vec.back().first) < *max_key)
-          && !((*max_key) < *(it.second->intermediate_vec.back().first))){
-        new_vec.push_back (it.second->intermediate_vec.back());
-        it.second->intermediate_vec.pop_back();
+    IntermediateVec *new_vec = new IntermediateVec();
+    for(auto it: *(tc->threads_context_map)){
+      while(!it.second->intermediate_vec->empty() &&
+          !(*(it.second->intermediate_vec->back().first) < *max_key)
+          && !((*max_key) < *(it.second->intermediate_vec->back().first))){
+        new_vec->push_back (it.second->intermediate_vec->back());
+        it.second->intermediate_vec->pop_back();
           (*(tc->num_of_shuffled_elements))++; //up the index
 
           *tc->atomic_counter = (static_cast<uint64_t>(SHUFFLE_STAGE) & 3) |
@@ -146,7 +146,7 @@ void shuffle(void* context){
 
       }
     }
-      tc->vectors_after_shuffle.push_back (&new_vec);
+    tc->vectors_after_shuffle->push_back (new_vec);
     (*(tc->num_of_vectors_in_shuffle))++;
   }
 }
@@ -154,8 +154,8 @@ void shuffle(void* context){
 
 void print_after_map_vector(void* context){
   ThreadContext* tc = (ThreadContext*)context;
-  for (size_t i = 0; i < tc->intermediate_vec.size(); ++i) {
-      std::cout << (tc->intermediate_vec[i].first) << " ";
+  for (size_t i = 0; i < tc->intermediate_vec->size(); ++i) {
+      std::cout << ((*tc->intermediate_vec)[i].first) << " ";
     }
   std::cout << std::endl;
 }
@@ -195,10 +195,10 @@ void* thread_run(void* arguments)
 
     while((curr_index->load() < input_size) && ((old_value = (*curr_index)++) < input_size))
     {
-        std::cout << "old" << old_value << std::endl;
+//        std::cout << "old" << old_value << std::endl;
         InputPair pair = (*thread_context->input_vec)[old_value];
         client->map(pair.first, pair.second, (void*)thread_context);
-        std::cout << old_value << std::endl;
+//        std::cout << old_value << std::endl;
 
         *thread_context->atomic_counter = (static_cast<uint64_t>(MAP_STAGE) & 3) |
                                           (static_cast<uint64_t>(curr_index->load()) << 2) |
@@ -208,13 +208,13 @@ void* thread_run(void* arguments)
         uint32_t processedKeys = (counter >> 2) & 0x7FFFFFFF;
         uint32_t totalKeys = (counter >> 33) & 0x7FFFFFFF;
 
-        std::cout << "processed: " << processedKeys << " total: " << totalKeys << std::endl;
+//        std::cout << "processed: " << processedKeys << " total: " << totalKeys << std::endl;
         thread_context->job_state->percentage = 100 *(processedKeys) / (totalKeys);
     }
 
     std::cout << "thread" << thread_id << "finished mapping" << std::endl;
 
-    print_iter_vector(thread_context->intermediate_vec);
+//    print_iter_vector(thread_context->intermediate_vec);
 
     sort_stage((void*)thread_context);
 
@@ -230,6 +230,7 @@ void* thread_run(void* arguments)
     thread_context->job_state->stage = SHUFFLE_STAGE;
     thread_context->job_state->percentage = 0;
   //shuffle if thread_id_is_0
+    std::cout << "entering shuffle" << thread_id << std::endl;
     if(thread_context->thread_id == 0){
         shuffle ((void*)thread_context);
         std::cout << "0 finished shuffle" << thread_id << std::endl;
@@ -242,13 +243,13 @@ void* thread_run(void* arguments)
     thread_context->job_state->stage = REDUCE_STAGE;
     thread_context->job_state->percentage = 0;
 
-    while (!thread_context->vectors_after_shuffle.empty()){
+    while (!thread_context->vectors_after_shuffle->empty()){
         pthread_mutex_lock (thread_context->mutex_on_reduce_stage);
         std::cout << "enterd in the mutex" << thread_id;
-        if (!thread_context->vectors_after_shuffle.empty()){
-            thread_context-> client->reduce (((thread_context->vectors_after_shuffle)).at(0), (void*)thread_context);
-            *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle.size();
-            ((thread_context->vectors_after_shuffle)).erase(((thread_context->vectors_after_shuffle)).begin());
+        if (!thread_context->vectors_after_shuffle->empty()){
+            thread_context-> client->reduce (((thread_context->vectors_after_shuffle))->at(0), (void*)thread_context);
+            *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle->size();
+            ((thread_context->vectors_after_shuffle))->erase(((thread_context->vectors_after_shuffle))->begin());
             thread_context->job_state->percentage = thread_context->reduce_running_index->load() / thread_context->num_intermediate_elements->load();
         }
         std::cout << "exiting the mutex" << thread_id;
@@ -285,16 +286,17 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     job_data->threads = threads;
     job_data->num_of_threads = multiThreadLevel;
     job_data->inputVec = &inputVec;
-    job_data->threads_context_map = std::map<int, ThreadContext*>();
-    job_data->vectors_after_shuffle = std::vector<IntermediateVec*>();
+    job_data->threads_context_map = new std::map<int, ThreadContext*>();
+    job_data->vectors_after_shuffle = new std::vector<IntermediateVec*>();
     job_data->output_vec = &outputVec;
     job_data->curr_input_index = new std::atomic<int>(0);
     job_data->num_intermediate_elements = new std::atomic<int>(0);
     job_data->num_output_elements = new std::atomic<int>(0);
     job_data->reduce_running_index = new std::atomic<int>(0);
+    job_data->num_of_vectors_in_shuffle = new std::atomic<int>(0);
     job_data->atomic_counter = new std::atomic<uint64_t>(0);
 
-    print_input_vector(inputVec);
+//    print_input_vector(inputVec);
 
     Barrier* barrier = new Barrier(multiThreadLevel);
     pthread_mutex_t* mutex_on_reduce_stage;
@@ -309,9 +311,10 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         threadContext->num_output_elements = job_data->num_output_elements;
         threadContext->curr_input_index = job_data->curr_input_index;
         threadContext->num_intermediate_elements = job_data->num_intermediate_elements;
+        threadContext->num_of_vectors_in_shuffle = job_data->num_of_vectors_in_shuffle;
         threadContext->reduce_running_index = job_data->reduce_running_index;
         threadContext->output_vec = &outputVec;
-        threadContext->intermediate_vec = IntermediateVec ();
+        threadContext->intermediate_vec = new IntermediateVec();
         threadContext->input_vec = &inputVec;
         threadContext->barrier = barrier;
         threadContext->thread_id = i;
@@ -322,7 +325,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         threadContext->mutex_on_reduce_stage = mutex_on_reduce_stage;
         std::cout << "allocated thread" << i << std::endl;
 
-        job_data->threads_context_map[i] = threadContext;
+        (*(job_data->threads_context_map))[i] = threadContext;
 
         //start_index, end_index = get_partition(size, thread_id)
         if (1 || threadContext->thread_id < inputSize)  //TODO: in free check if thread before free
@@ -365,7 +368,7 @@ void closeJobHandle(JobHandle job)
             free(job_data->job_state);
         for (int i=0; i < job_data->num_of_threads; i++)
         {
-            ThreadContext * curr_context = job_data->threads_context_map[i];
+            ThreadContext * curr_context = (*job_data->threads_context_map)[i];
 
             if (curr_context)
             {

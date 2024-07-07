@@ -190,29 +190,29 @@ MapReduceFramework.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/libMapReduceFramework.a.dir/build.make CMakeFiles/libMapReduceFramework.a.dir/MapReduceFramework.cpp.s
 .PHONY : MapReduceFramework.cpp.s
 
-SampleClient.o: SampleClient.cpp.o
-.PHONY : SampleClient.o
+test1-1_thread_1_process.o: test1-1_thread_1_process.cpp.o
+.PHONY : test1-1_thread_1_process.o
 
 # target to build an object file
-SampleClient.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/SampleClient.cpp.o
-.PHONY : SampleClient.cpp.o
+test1-1_thread_1_process.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o
+.PHONY : test1-1_thread_1_process.cpp.o
 
-SampleClient.i: SampleClient.cpp.i
-.PHONY : SampleClient.i
+test1-1_thread_1_process.i: test1-1_thread_1_process.cpp.i
+.PHONY : test1-1_thread_1_process.i
 
 # target to preprocess a source file
-SampleClient.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/SampleClient.cpp.i
-.PHONY : SampleClient.cpp.i
+test1-1_thread_1_process.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.i
+.PHONY : test1-1_thread_1_process.cpp.i
 
-SampleClient.s: SampleClient.cpp.s
-.PHONY : SampleClient.s
+test1-1_thread_1_process.s: test1-1_thread_1_process.cpp.s
+.PHONY : test1-1_thread_1_process.s
 
 # target to generate assembly for a file
-SampleClient.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/SampleClient.cpp.s
-.PHONY : SampleClient.cpp.s
+test1-1_thread_1_process.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OS_ex3.dir/build.make CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.s
+.PHONY : test1-1_thread_1_process.cpp.s
 
 # Help Target
 help:
@@ -230,9 +230,9 @@ help:
 	@echo "... MapReduceFramework.o"
 	@echo "... MapReduceFramework.i"
 	@echo "... MapReduceFramework.s"
-	@echo "... SampleClient.o"
-	@echo "... SampleClient.i"
-	@echo "... SampleClient.s"
+	@echo "... test1-1_thread_1_process.o"
+	@echo "... test1-1_thread_1_process.i"
+	@echo "... test1-1_thread_1_process.s"
 .PHONY : help
 
 

@@ -10,7 +10,7 @@ add_library(libMapReduceFramework.a STATIC
         MapReduceFramework.cpp)
 
 add_executable(OS_ex3
-        SampleClient.cpp
+        test1-1_thread_1_process.cpp
         Barrier/Barrier.h
         Barrier/Barrier.cpp
         MapReduceClient.h
