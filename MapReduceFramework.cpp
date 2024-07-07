@@ -203,7 +203,9 @@ void* thread_run(void* arguments)
 
     sort_stage((void*)thread_context);
 
+    std::cout << "enetring  barrier" << thread_id << std::endl;
     thread_context->barrier->barrier();
+    std::cout << "enetring shuffle after barrier" << thread_id << std::endl;
 
     // changing to shuffle
     uint64_t counter = thread_context->atomic_counter->load();
@@ -215,9 +217,14 @@ void* thread_run(void* arguments)
   //shuffle if thread_id_is_0
     if(thread_context->thread_id == 0){
         shuffle ((void*)thread_context);
+        std::cout << "0 finished shuffle" << thread_id << std::endl;
     }
+    thread_context->job_state->percentage = 100;
 
     thread_context->barrier->barrier();
+    std::cout << "starting reduce stage after barrier" << thread_id << std::endl;
+    thread_context->job_state->stage = REDUCE_STAGE;
+    thread_context->job_state->percentage = 0;
 
     while (!thread_context->vectors_after_shuffle->empty()){
         pthread_mutex_lock (thread_context->mutex_on_reduce_stage);
@@ -227,9 +234,10 @@ void* thread_run(void* arguments)
         }
         pthread_mutex_unlock (thread_context->mutex_on_reduce_stage);
     }
-    //reduce
 
-    //end
+    thread_context->job_state->percentage = 100;
+
+    std::cout << "finished all " << thread_id << std::endl;
 }
 
 JobHandle startMapReduceJob(const MapReduceClient& client,
@@ -293,7 +301,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         job_data->threads_context_map[i] = threadContext;
 
         //start_index, end_index = get_partition(size, thread_id)
-        if (threadContext->thread_id < inputSize)  //TODO: in free check if thread before free
+        if (1 || threadContext->thread_id < inputSize)  //TODO: in free check if thread before free
         {
             pthread_create(threads+i, NULL, thread_run, (void*)threadContext);
         }
