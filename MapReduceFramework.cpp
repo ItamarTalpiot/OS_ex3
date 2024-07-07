@@ -43,6 +43,7 @@ typedef struct{
     std::atomic<int>* num_output_elements;
     std::atomic<int>* reduce_running_index;
     std::atomic<int>* num_of_vectors_in_shuffle;
+    std::atomic<int>* num_of_shuffled_elements;
     std::atomic<uint64_t>* atomic_counter;
 } JobData;
 
@@ -54,6 +55,7 @@ void print_library_error(std::string str){
 void emit2 (K2* key, V2* value, void* context){
   ThreadContext* tc = (ThreadContext *) context;
   IntermediatePair pair = IntermediatePair(key, value);
+//  std::cout << "emitted2" << std::endl;
   tc->intermediate_vec->push_back (pair);
   (*(tc->num_intermediate_elements))++;
 }
@@ -295,6 +297,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     job_data->num_output_elements = new std::atomic<int>(0);
     job_data->reduce_running_index = new std::atomic<int>(0);
     job_data->num_of_vectors_in_shuffle = new std::atomic<int>(0);
+    job_data->num_of_shuffled_elements = new std::atomic<int>(0);
     job_data->atomic_counter = new std::atomic<uint64_t>(0);
 
 //    print_input_vector(inputVec);
@@ -313,6 +316,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         threadContext->curr_input_index = job_data->curr_input_index;
         threadContext->num_intermediate_elements = job_data->num_intermediate_elements;
         threadContext->num_of_vectors_in_shuffle = job_data->num_of_vectors_in_shuffle;
+        threadContext->num_of_shuffled_elements = job_data->num_of_shuffled_elements;
         threadContext->reduce_running_index = job_data->reduce_running_index;
         threadContext->output_vec = &outputVec;
         threadContext->intermediate_vec = new IntermediateVec();
