@@ -69,19 +69,19 @@ include CMakeFiles/OS_ex3.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/OS_ex3.dir/flags.make
 
-CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o: CMakeFiles/OS_ex3.dir/flags.make
-CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o: ../test1-1_thread_1_process.cpp
-CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o: CMakeFiles/OS_ex3.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o -MF CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o.d -o CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o -c /mnt/c/semesterD/os/ex3/OS_ex3/test1-1_thread_1_process.cpp
+CMakeFiles/OS_ex3.dir/SampleClient.cpp.o: CMakeFiles/OS_ex3.dir/flags.make
+CMakeFiles/OS_ex3.dir/SampleClient.cpp.o: ../SampleClient.cpp
+CMakeFiles/OS_ex3.dir/SampleClient.cpp.o: CMakeFiles/OS_ex3.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/OS_ex3.dir/SampleClient.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OS_ex3.dir/SampleClient.cpp.o -MF CMakeFiles/OS_ex3.dir/SampleClient.cpp.o.d -o CMakeFiles/OS_ex3.dir/SampleClient.cpp.o -c /mnt/c/semesterD/os/ex3/OS_ex3/SampleClient.cpp
 
-CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/semesterD/os/ex3/OS_ex3/test1-1_thread_1_process.cpp > CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.i
+CMakeFiles/OS_ex3.dir/SampleClient.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/OS_ex3.dir/SampleClient.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/semesterD/os/ex3/OS_ex3/SampleClient.cpp > CMakeFiles/OS_ex3.dir/SampleClient.cpp.i
 
-CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/semesterD/os/ex3/OS_ex3/test1-1_thread_1_process.cpp -o CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.s
+CMakeFiles/OS_ex3.dir/SampleClient.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/OS_ex3.dir/SampleClient.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/semesterD/os/ex3/OS_ex3/SampleClient.cpp -o CMakeFiles/OS_ex3.dir/SampleClient.cpp.s
 
 CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o: CMakeFiles/OS_ex3.dir/flags.make
 CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o: ../Barrier/Barrier.cpp
@@ -99,13 +99,13 @@ CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.s: cmake_force
 
 # Object files for target OS_ex3
 OS_ex3_OBJECTS = \
-"CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o" \
+"CMakeFiles/OS_ex3.dir/SampleClient.cpp.o" \
 "CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o"
 
 # External object files for target OS_ex3
 OS_ex3_EXTERNAL_OBJECTS =
 
-OS_ex3: CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o
+OS_ex3: CMakeFiles/OS_ex3.dir/SampleClient.cpp.o
 OS_ex3: CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o
 OS_ex3: CMakeFiles/OS_ex3.dir/build.make
 OS_ex3: liblibMapReduceFramework.a.a

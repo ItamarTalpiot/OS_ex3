@@ -128,7 +128,6 @@ void shuffle(void* context){
     K2* max_key = get_max_key (tc);
     IntermediateVec *new_vec = new IntermediateVec();
     for(auto it: *(tc->threads_context_map)){
-        std::cout << !((*max_key) < *(it.second->intermediate_vec->back().first)) << std::endl;
         while(!it.second->intermediate_vec->empty() &&
           !(*(it.second->intermediate_vec->back().first) < *max_key)
           && !((*max_key) < *(it.second->intermediate_vec->back().first))){
@@ -252,9 +251,9 @@ void* thread_run(void* arguments)
         std::cout << "enterd in the mutex" << thread_id << std::endl;
         if (!thread_context->vectors_after_shuffle->empty()){
             thread_context-> client->reduce (((thread_context->vectors_after_shuffle))->at(0), (void*)thread_context);
-            *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle->size();
+            *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle->at(0)->size();
             ((thread_context->vectors_after_shuffle))->erase(((thread_context->vectors_after_shuffle))->begin());
-            thread_context->job_state->percentage = thread_context->reduce_running_index->load() / thread_context->num_intermediate_elements->load();
+            thread_context->job_state->percentage = 100*thread_context->reduce_running_index->load() / thread_context->num_intermediate_elements->load();
         }
         std::cout << "exiting the mutex" << thread_id << std::endl;
         pthread_mutex_unlock (thread_context->mutex_on_reduce_stage);

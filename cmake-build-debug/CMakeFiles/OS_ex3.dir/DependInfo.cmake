@@ -9,7 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/mnt/c/semesterD/os/ex3/OS_ex3/Barrier/Barrier.cpp" "CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o" "gcc" "CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o.d"
-  "/mnt/c/semesterD/os/ex3/OS_ex3/test1-1_thread_1_process.cpp" "CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o" "gcc" "CMakeFiles/OS_ex3.dir/test1-1_thread_1_process.cpp.o.d"
+  "/mnt/c/semesterD/os/ex3/OS_ex3/SampleClient.cpp" "CMakeFiles/OS_ex3.dir/SampleClient.cpp.o" "gcc" "CMakeFiles/OS_ex3.dir/SampleClient.cpp.o.d"
   )
 
 # Targets to which this target links.
