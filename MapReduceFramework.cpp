@@ -105,7 +105,7 @@ K2* get_max_key(ThreadContext* tc){
   K2* max_key = nullptr;
   for(auto it: *(tc->threads_context_map)){
     if (!it.second->intermediate_vec->empty()){
-      K2* cur_key = it.second->intermediate_vec->at(0).first;
+      K2* cur_key = it.second->intermediate_vec->back().first;
       if(max_key == nullptr){
         max_key = cur_key;
       }
@@ -125,7 +125,8 @@ void shuffle(void* context){
     K2* max_key = get_max_key (tc);
     IntermediateVec *new_vec = new IntermediateVec();
     for(auto it: *(tc->threads_context_map)){
-      while(!it.second->intermediate_vec->empty() &&
+        std::cout << !((*max_key) < *(it.second->intermediate_vec->back().first)) << std::endl;
+        while(!it.second->intermediate_vec->empty() &&
           !(*(it.second->intermediate_vec->back().first) < *max_key)
           && !((*max_key) < *(it.second->intermediate_vec->back().first))){
         new_vec->push_back (it.second->intermediate_vec->back());
