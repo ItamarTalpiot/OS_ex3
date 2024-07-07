@@ -20,7 +20,7 @@ typedef struct ThreadContext{
     int thread_id;
     int input_size;
     std::map<int, ThreadContext*> threads_context_map;
-    std::vector<IntermediateVec*>* vectors_after_shuffle;
+    std::vector<IntermediateVec*> vectors_after_shuffle;
     std::atomic<int>* num_of_vectors_in_shuffle;
     std::atomic<int>* num_of_shuffled_elements;
     std::atomic<int>* reduce_running_index;
@@ -36,6 +36,7 @@ typedef struct{
     int num_of_threads;
     const InputVec* inputVec;
     std::map<int, ThreadContext*> threads_context_map;
+    std::vector<IntermediateVec*> vectors_after_shuffle;
     OutputVec* output_vec;
     std::atomic<int>* curr_input_index;
     std::atomic<int>* num_intermediate_elements;
@@ -145,10 +146,9 @@ void shuffle(void* context){
 
       }
     }
-    shuffle_vec.push_back (&new_vec);
+      tc->vectors_after_shuffle.push_back (&new_vec);
     (*(tc->num_of_vectors_in_shuffle))++;
   }
-  tc->vectors_after_shuffle = &shuffle_vec;
 }
 
 
@@ -242,15 +242,16 @@ void* thread_run(void* arguments)
     thread_context->job_state->stage = REDUCE_STAGE;
     thread_context->job_state->percentage = 0;
 
-    while (!thread_context->vectors_after_shuffle->empty()){
+    while (!thread_context->vectors_after_shuffle.empty()){
         pthread_mutex_lock (thread_context->mutex_on_reduce_stage);
-        if (!thread_context->vectors_after_shuffle->empty()){
-            thread_context->
-          client->reduce ((*(thread_context->vectors_after_shuffle)).at(0), (void*)thread_context);
-            *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle->size();
-            (*(thread_context->vectors_after_shuffle)).erase((*(thread_context->vectors_after_shuffle)).begin());
+        std::cout << "enterd in the mutex" << thread_id;
+        if (!thread_context->vectors_after_shuffle.empty()){
+            thread_context-> client->reduce (((thread_context->vectors_after_shuffle)).at(0), (void*)thread_context);
+            *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle.size();
+            ((thread_context->vectors_after_shuffle)).erase(((thread_context->vectors_after_shuffle)).begin());
             thread_context->job_state->percentage = thread_context->reduce_running_index->load() / thread_context->num_intermediate_elements->load();
         }
+        std::cout << "exiting the mutex" << thread_id;
         pthread_mutex_unlock (thread_context->mutex_on_reduce_stage);
     }
 
@@ -285,6 +286,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     job_data->num_of_threads = multiThreadLevel;
     job_data->inputVec = &inputVec;
     job_data->threads_context_map = std::map<int, ThreadContext*>();
+    job_data->vectors_after_shuffle = std::vector<IntermediateVec*>();
     job_data->output_vec = &outputVec;
     job_data->curr_input_index = new std::atomic<int>(0);
     job_data->num_intermediate_elements = new std::atomic<int>(0);
@@ -296,12 +298,14 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
 
     Barrier* barrier = new Barrier(multiThreadLevel);
     pthread_mutex_t* mutex_on_reduce_stage;
+    *mutex_on_reduce_stage = PTHREAD_MUTEX_INITIALIZER;
 
     int inputSize = inputVec.size();
     for (int i = 0; i < multiThreadLevel; ++i)
     {
         ThreadContext * threadContext = (ThreadContext*) malloc(sizeof(ThreadContext));
         threadContext->threads_context_map = job_data->threads_context_map;
+        threadContext->vectors_after_shuffle = job_data->vectors_after_shuffle;
         threadContext->num_output_elements = job_data->num_output_elements;
         threadContext->curr_input_index = job_data->curr_input_index;
         threadContext->num_intermediate_elements = job_data->num_intermediate_elements;
@@ -369,7 +373,6 @@ void closeJobHandle(JobHandle job)
                     delete curr_context->barrier;
             }
         }
-
         free(job_data);
     }
 }
