@@ -249,14 +249,14 @@ void* thread_run(void* arguments)
 
     while (!thread_context->vectors_after_shuffle->empty()){
         pthread_mutex_lock (thread_context->mutex_on_reduce_stage);
-        std::cout << "enterd in the mutex" << thread_id;
+        std::cout << "enterd in the mutex" << thread_id << std::endl;
         if (!thread_context->vectors_after_shuffle->empty()){
             thread_context-> client->reduce (((thread_context->vectors_after_shuffle))->at(0), (void*)thread_context);
             *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle->size();
             ((thread_context->vectors_after_shuffle))->erase(((thread_context->vectors_after_shuffle))->begin());
             thread_context->job_state->percentage = thread_context->reduce_running_index->load() / thread_context->num_intermediate_elements->load();
         }
-        std::cout << "exiting the mutex" << thread_id;
+        std::cout << "exiting the mutex" << thread_id << std::endl;
         pthread_mutex_unlock (thread_context->mutex_on_reduce_stage);
     }
 
@@ -269,7 +269,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
 {
     pthread_t* threads = new pthread_t[multiThreadLevel];
 //    pthread_t threads[multiThreadLevel];
-    JobState* j_state = (JobState*) malloc(sizeof(JobState));
+    JobState* j_state = new JobState();
     if (j_state == NULL) {
         print_library_error ("Failed to allocate memory for JobState");
         exit(1);
@@ -278,11 +278,11 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     j_state->percentage = 0.0f;
 
     // Allocate and initialize JobData
-    JobData* job_data = (JobData*) malloc(sizeof(JobData));
+    JobData* job_data = new JobData();
     if (job_data == NULL) {
         print_library_error ("Failed to allocate memory for JobData");
         delete[](threads);
-        free(j_state);
+        delete(j_state);
         exit(1);
     }
 
@@ -305,13 +305,19 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
 //    print_input_vector(inputVec);
 
     Barrier* barrier = new Barrier(multiThreadLevel);
-    pthread_mutex_t* mutex_on_reduce_stage;
-    *mutex_on_reduce_stage = PTHREAD_MUTEX_INITIALIZER;
+
+    pthread_mutex_t* mutex_on_reduce_stage = new pthread_mutex_t ();
+
+    if (pthread_mutex_init (mutex_on_reduce_stage, nullptr) != 0)
+      {
+        exit (1);
+      }
+//    *mutex_on_reduce_stage = PTHREAD_MUTEX_INITIALIZER;
 
     int inputSize = inputVec.size();
     for (int i = 0; i < multiThreadLevel; ++i)
     {
-        ThreadContext * threadContext = (ThreadContext*) malloc(sizeof(ThreadContext));
+        ThreadContext* threadContext = new ThreadContext();
         threadContext->threads_context_map = job_data->threads_context_map;
         threadContext->vectors_after_shuffle = job_data->vectors_after_shuffle;
         threadContext->num_output_elements = job_data->num_output_elements;
@@ -377,7 +383,7 @@ void closeJobHandle(JobHandle job)
         if (job_data->threads)
             delete[] job_data->threads;
         if (job_data->job_state)
-            free(job_data->job_state);
+            delete job_data->job_state;  // todo: what is this??
         for (int i=0; i < job_data->num_of_threads; i++)
         {
             ThreadContext * curr_context = (*job_data->threads_context_map)[i];
@@ -387,8 +393,9 @@ void closeJobHandle(JobHandle job)
                 if (curr_context->barrier)
                     delete curr_context->barrier;
             }
+            delete curr_context;
         }
-        free(job_data);
+        delete job_data;
     }
 }
 
