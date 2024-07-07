@@ -165,4 +165,4 @@ CMakeFiles/OS_ex3.dir/MapReduceFramework.cpp.o: \
  /usr/include/c++/11/bits/stl_heap.h \
  /usr/include/c++/11/bits/stl_tempbuf.h \
  /usr/include/c++/11/bits/uniform_int_dist.h \
- /mnt/c/semesterD/os/ex3/OS_ex3/Barrier/../Barrier/Barrier.h
+ /mnt/c/semesterD/os/ex3/OS_ex3/Barrier/Barrier.h
