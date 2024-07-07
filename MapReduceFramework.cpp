@@ -44,6 +44,7 @@ typedef struct{
     std::atomic<int>* reduce_running_index;
     std::atomic<int>* num_of_vectors_in_shuffle;
     std::atomic<int>* num_of_shuffled_elements;
+    std::atomic<int>* is_joined;
     std::atomic<uint64_t>* atomic_counter;
 } JobData;
 
@@ -298,6 +299,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     job_data->reduce_running_index = new std::atomic<int>(0);
     job_data->num_of_vectors_in_shuffle = new std::atomic<int>(0);
     job_data->num_of_shuffled_elements = new std::atomic<int>(0);
+    job_data->is_joined = new std::atomic<int>(0);
     job_data->atomic_counter = new std::atomic<uint64_t>(0);
 
 //    print_input_vector(inputVec);
@@ -347,19 +349,24 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
 void waitForJob(JobHandle job)
 {
     JobData* job_data = (JobData*) job;
+    *job_data->is_joined = 1;
 
-
-    for (int i = 0; i < job_data->num_of_threads; ++i) {
-        pthread_join(job_data->threads[i], NULL);
+    if (job_data->is_joined->load())
+    {
+        for (int i = 0; i < job_data->num_of_threads; ++i) {
+            pthread_join(job_data->threads[i], NULL);
+        }
     }
-
-    // TODO: change state to ended
-    closeJobHandle(job);
 }
 
 void closeJobHandle(JobHandle job)
 {
-    JobData * job_data = (JobData*) job;
+    JobData* job_data = (JobData*) job;
+    if (!job_data->is_joined->load())
+    {
+        waitForJob(job);
+    }
+
     if (job_data->job_state->stage != REDUCE_STAGE || job_data->job_state->percentage != 100)
     {
         waitForJob(job);
