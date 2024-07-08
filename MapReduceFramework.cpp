@@ -311,7 +311,6 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
       {
         exit (1);
       }
-//    *mutex_on_reduce_stage = PTHREAD_MUTEX_INITIALIZER;
 
     int inputSize = inputVec.size();
     for (int i = 0; i < multiThreadLevel; ++i)
@@ -382,17 +381,25 @@ void closeJobHandle(JobHandle job)
         if (job_data->threads)
             delete[] job_data->threads;
         if (job_data->job_state)
-            delete job_data->job_state;  // todo: what is this??
+            delete job_data->job_state;
+
+        if (job_data->num_of_threads > 0){
+            ThreadContext* curr_context = (*job_data->threads_context_map)[0];
+            if (curr_context){
+              if(curr_context->barrier){
+                delete curr_context->barrier;
+              }
+            }
+        }
+
         for (int i=0; i < job_data->num_of_threads; i++)
         {
-            ThreadContext * curr_context = (*job_data->threads_context_map)[i];
+            ThreadContext* curr_context = (*job_data->threads_context_map)[i];
 
             if (curr_context)
             {
-                if (curr_context->barrier)
-                    delete curr_context->barrier;
+                delete curr_context;
             }
-            delete curr_context;
         }
         delete job_data;
     }
