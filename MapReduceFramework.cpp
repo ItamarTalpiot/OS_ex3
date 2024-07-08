@@ -339,8 +339,8 @@ void waitForJob(JobHandle job)
         for (int i = 0; i < job_data->num_of_threads; ++i) {
             pthread_join(job_data->threads[i], NULL);
         }
+        *job_data->is_joined = 1;
     }
-  *job_data->is_joined = 1;
   pthread_mutex_unlock(job_data->mutex_for_wait_for_job);
 }
 
