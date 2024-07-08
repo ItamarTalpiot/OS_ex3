@@ -50,7 +50,11 @@ typedef struct{
 
 
 void print_library_error(std::string str){
-  std::cout << "system error: " << str << std::endl;
+  std::cout << "library error: " << str << std::endl;
+}
+
+void print_system_error(std::string str){
+    std::cout << "system error: " << str << std::endl;
 }
 
 void emit2 (K2* key, V2* value, void* context){
@@ -143,7 +147,7 @@ void shuffle(void* context){
           uint32_t processedKeys = (counter >> 2) & 0x7FFFFFFF;
           uint32_t totalKeys = (counter >> 33) & 0x7FFFFFFF;
 
-          std::cout << "Shuffle processed: " << processedKeys << " total: " << totalKeys << std::endl;
+//          std::cout << "Shuffle processed: " << processedKeys << " total: " << totalKeys << std::endl;
           tc->job_state->percentage = 100 *(processedKeys) / (totalKeys);
 
 
@@ -194,7 +198,7 @@ void* thread_run(void* arguments)
                                       (static_cast<uint64_t>(0) << 2) |
                                       (static_cast<uint64_t>(input_size) << 33);
 
-    std::cout << "running thread" << thread_id << std::endl;
+//    std::cout << "running thread" << thread_id << std::endl;
 
     while((curr_index->load() < input_size) && ((old_value = (*curr_index)++) < input_size))
     {
@@ -215,62 +219,62 @@ void* thread_run(void* arguments)
         thread_context->job_state->percentage = 100 *(processedKeys) / (totalKeys);
     }
 
-    std::cout << "thread" << thread_id << "finished mapping" << std::endl;
+//    std::cout << "thread" << thread_id << "finished mapping" << std::endl;
 
 //    print_iter_vector(thread_context->intermediate_vec);
 
     sort_stage((void*)thread_context);
 
-    std::cout << "enetring  barrier" << thread_id << std::endl;
+//    std::cout << "enetring  barrier" << thread_id << std::endl;
     thread_context->barrier->barrier();
-    std::cout << "enetring weird itamar thing after barrier" << thread_id << std::endl;
+//    std::cout << "enetring weird itamar thing after barrier" << thread_id << std::endl;
 
     // changing to shuffle
     uint64_t counter = thread_context->atomic_counter->load();
     *thread_context->atomic_counter = (static_cast<uint64_t>(SHUFFLE_STAGE) & 3) |
                                       (static_cast<uint64_t>(0) << 2) |
                                       (static_cast<uint64_t>(thread_context->num_intermediate_elements->load()) << 33);
-    thread_context->job_state->stage = SHUFFLE_STAGE;
-    thread_context->job_state->percentage = 0;
   //shuffle if thread_id_is_0
-    std::cout << "entering shuffle" << thread_id << std::endl;
+//    std::cout << "entering shuffle" << thread_id << std::endl;
     if(thread_context->thread_id == 0){
+        thread_context->job_state->stage = SHUFFLE_STAGE;
+        thread_context->job_state->percentage = 0;
         shuffle ((void*)thread_context);
-        std::cout << "0 finished shuffle" << thread_id << std::endl;
+//        std::cout << "0 finished shuffle" << thread_id << std::endl;
         thread_context->job_state->percentage = 100;
     }
 
     thread_context->barrier->barrier();
 
-    std::cout << "starting reduce stage after barrier" << thread_id << std::endl;
+//    std::cout << "starting reduce stage after barrier" << thread_id << std::endl;
     thread_context->job_state->stage = REDUCE_STAGE;
-    thread_context->job_state->percentage = 0;
 
     while (!thread_context->vectors_after_shuffle->empty()){
         pthread_mutex_lock (thread_context->mutex_on_reduce_stage);
-        std::cout << "enterd in the mutex" << thread_id << std::endl;
+//        std::cout << "enterd in the mutex" << thread_id << std::endl;
         if (!thread_context->vectors_after_shuffle->empty()){
             thread_context-> client->reduce (((thread_context->vectors_after_shuffle))->at(0), (void*)thread_context);
             *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle->at(0)->size();
             ((thread_context->vectors_after_shuffle))->erase(((thread_context->vectors_after_shuffle))->begin());
             thread_context->job_state->percentage = 100*thread_context->reduce_running_index->load() / thread_context->num_intermediate_elements->load();
         }
-        std::cout << "exiting the mutex" << thread_id << std::endl;
+//        std::cout << "exiting the mutex" << thread_id << std::endl;
         pthread_mutex_unlock (thread_context->mutex_on_reduce_stage);
     }
 
-    std::cout << "finished all " << thread_id << std::endl;
+//    std::cout << "finished all " << thread_id << std::endl;
 }
 
 JobHandle startMapReduceJob(const MapReduceClient& client,
                             const InputVec& inputVec, OutputVec& outputVec,
                             int multiThreadLevel)
 {
+//    std::cout << "pita" << std::endl;
     pthread_t* threads = new pthread_t[multiThreadLevel];
 //    pthread_t threads[multiThreadLevel];
     JobState* j_state = new JobState();
     if (j_state == NULL) {
-        print_library_error ("Failed to allocate memory for JobState");
+        print_system_error("Failed to allocate memory for JobState");
         exit(1);
     }
     j_state->stage = UNDEFINED_STAGE;
@@ -279,7 +283,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     // Allocate and initialize JobData
     JobData* job_data = new JobData();
     if (job_data == NULL) {
-        print_library_error ("Failed to allocate memory for JobData");
+        print_system_error ("Failed to allocate memory for JobData");
         delete[](threads);
         delete(j_state);
         exit(1);
@@ -301,15 +305,14 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     job_data->is_joined = new std::atomic<int>(0);
     job_data->atomic_counter = new std::atomic<uint64_t>(0);
 
-//    print_input_vector(inputVec);
- //mn
     Barrier* barrier = new Barrier(multiThreadLevel);
 
     pthread_mutex_t* mutex_on_reduce_stage = new pthread_mutex_t ();
 
     if (pthread_mutex_init (mutex_on_reduce_stage, nullptr) != 0)
       {
-        exit (1);
+          print_system_error("mutex init error");
+          exit (1);
       }
 
     int inputSize = inputVec.size();
@@ -334,17 +337,17 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         threadContext->job_state = j_state;
         threadContext->atomic_counter = job_data->atomic_counter;
         threadContext->mutex_on_reduce_stage = mutex_on_reduce_stage;
-        std::cout << "allocated thread" << i << std::endl;
+//        std::cout << "allocated thread" << i << std::endl;
 
         (*(job_data->threads_context_map))[i] = threadContext;
 
         //start_index, end_index = get_partition(size, thread_id)
-        if (1 || threadContext->thread_id < inputSize)  //TODO: in free check if thread before free
+        if (pthread_create(threads+i, NULL, thread_run, (void*)threadContext) != 0)
         {
-            pthread_create(threads+i, NULL, thread_run, (void*)threadContext);
+            print_system_error("Thread creation failed");
+            exit(1);
         }
     }
-
 
     return (void*) job_data;
 }

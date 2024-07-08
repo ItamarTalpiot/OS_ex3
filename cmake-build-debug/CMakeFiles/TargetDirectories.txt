@@ -1,4 +1,0 @@
-/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles/libMapReduceFramework.a.dir
-/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles/OS_ex3.dir
-/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles/edit_cache.dir
-/mnt/c/semesterD/os/ex3/OS_ex3/cmake-build-debug/CMakeFiles/rebuild_cache.dir

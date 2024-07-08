@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/OS_ex3.dir/SampleClient.cpp.o CMakeFiles/OS_ex3.dir/Barrier/Barrier.cpp.o -o OS_ex3  liblibMapReduceFramework.a.a 
