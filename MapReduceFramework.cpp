@@ -61,7 +61,6 @@ void print_system_error(std::string str){
 void emit2 (K2* key, V2* value, void* context){
   ThreadContext* tc = (ThreadContext *) context;
   IntermediatePair pair = IntermediatePair(key, value);
-//  std::cout << "emitted2" << std::endl;
   tc->intermediate_vec->push_back (pair);
   (*(tc->num_intermediate_elements))++;
 }
@@ -152,7 +151,6 @@ void shuffle(void* context){
           uint32_t processedKeys = (counter >> 2) & 0x7FFFFFFF;
           uint32_t totalKeys = (counter >> 33) & 0x7FFFFFFF;
 
-//          std::cout << "Shuffle processed: " << processedKeys << " total: " << totalKeys << std::endl;
           tc->job_state->percentage = 100 *(processedKeys) / (totalKeys);
 
 
@@ -161,31 +159,6 @@ void shuffle(void* context){
     tc->vectors_after_shuffle->push_back (new_vec);
     (*(tc->num_of_vectors_in_shuffle))++;
   }
-}
-
-
-void print_after_map_vector(void* context){
-  ThreadContext* tc = (ThreadContext*)context;
-  for (size_t i = 0; i < tc->intermediate_vec->size(); ++i) {
-      std::cout << ((*tc->intermediate_vec)[i].first) << " ";
-    }
-  std::cout << std::endl;
-}
-
-void print_input_vector(InputVec vec)
-{
-    std::cout << "input vec:" << std::endl;
-    for (InputPair pair : vec) {
-        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
-    }
-}
-
-void print_iter_vector(IntermediateVec vec)
-{
-    std::cout << "iter vec:" << std::endl;
-    for (IntermediatePair pair : vec) {
-        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
-    }
 }
 
 
@@ -199,39 +172,23 @@ void* thread_run(void* arguments)
     int input_size = thread_context->input_size;
 
 
-//    std::cout << "running thread" << thread_id << std::endl;
-
     while((curr_index->load() < input_size) && ((old_value = (*curr_index)++) < input_size))
     {
-//        std::cout << "old" << old_value << std::endl;
         InputPair pair = (*thread_context->input_vec)[old_value];
         client->map(pair.first, pair.second, (void*)thread_context);
-//        std::cout << old_value << std::endl;
 
         *thread_context->atomic_counter = (static_cast<uint64_t>(MAP_STAGE) & 3) |
                                           (static_cast<uint64_t>(curr_index->load()) << 2) |
                                           (static_cast<uint64_t>(input_size) << 33);
         thread_context->job_state->stage = MAP_STAGE;
-//        uint64_t counter = thread_context->atomic_counter->load();
-//        uint32_t processedKeys = (counter >> 2) & 0x7FFFFFFF;
-//        uint32_t totalKeys = (counter >> 33) & 0x7FFFFFFF;
-
-//        std::cout << "processed: " << processedKeys << " total: " << totalKeys << std::endl;
         thread_context->job_state->percentage = 100 *(curr_index->load()) / (input_size);
         thread_context->job_state->stage = MAP_STAGE;
     }
 
-//    std::cout << "thread" << thread_id << "finished mapping" << std::endl;
-
-//    print_iter_vector(thread_context->intermediate_vec);
-
     sort_stage((void*)thread_context);
 
-//    std::cout << "enetring  barrier" << thread_id << std::endl;
     thread_context->barrier->barrier();
-//    std::cout << "enetring weird itamar thing after barrier" << thread_id << std::endl;
 
-//    std::cout << "entering shuffle" << thread_id << std::endl;
     if(thread_context->thread_id == 0){
         *thread_context->atomic_counter = (static_cast<uint64_t>(SHUFFLE_STAGE) & 3) |
                                           (static_cast<uint64_t>(0) << 2) |
@@ -240,7 +197,6 @@ void* thread_run(void* arguments)
         thread_context->job_state->stage = SHUFFLE_STAGE;
         thread_context->job_state->percentage = 0;
         shuffle ((void*)thread_context);
-//        std::cout << "0 finished shuffle" << thread_id << std::endl;
         thread_context->job_state->percentage = 100;
         *thread_context->atomic_counter = (static_cast<uint64_t>(REDUCE_STAGE) & 3) |
                                           (static_cast<uint64_t>(0) << 2) |
@@ -249,12 +205,10 @@ void* thread_run(void* arguments)
 
     thread_context->barrier->barrier();
 
-//    std::cout << "starting reduce stage after barrier" << thread_id << std::endl;
     thread_context->job_state->stage = REDUCE_STAGE;
 
     while (!thread_context->vectors_after_shuffle->empty()){
         pthread_mutex_lock (thread_context->mutex_on_reduce_stage);
-//        std::cout << "enterd in the mutex" << thread_id << std::endl;
         if (!thread_context->vectors_after_shuffle->empty()){
             thread_context-> client->reduce (((thread_context->vectors_after_shuffle))->at(0), (void*)thread_context);
             *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle->at(0)->size();
@@ -269,11 +223,9 @@ void* thread_run(void* arguments)
             thread_context->job_state->percentage = 100*processed_key / total_keys;
 
         }
-//        std::cout << "exiting the mutex" << thread_id << std::endl;
         pthread_mutex_unlock (thread_context->mutex_on_reduce_stage);
     }
 
-//    std::cout << "finished all " << thread_id << std::endl;
 
 }
 
@@ -281,7 +233,6 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
                             const InputVec& inputVec, OutputVec& outputVec,
                             int multiThreadLevel)
 {
-//    std::cout << "pita" << std::endl;
     pthread_t* threads = new pthread_t[multiThreadLevel];
     JobState* j_state = new JobState();
     if (j_state == NULL) {
@@ -364,7 +315,6 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         threadContext->job_state = j_state;
         threadContext->atomic_counter = job_data->atomic_counter;
         threadContext->mutex_on_reduce_stage = mutex_on_reduce_stage;
-//        std::cout << "allocated thread" << i << std::endl;
 
         (*(job_data->threads_context_map))[i] = threadContext;
 
@@ -383,14 +333,14 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
 void waitForJob(JobHandle job)
 {
     JobData* job_data = (JobData*) job;
-    *job_data->is_joined = 1;
     pthread_mutex_lock (job_data->mutex_for_wait_for_job);
-    if (job_data->is_joined->load())
+  if (!job_data->is_joined->load())
     {
         for (int i = 0; i < job_data->num_of_threads; ++i) {
             pthread_join(job_data->threads[i], NULL);
         }
     }
+  *job_data->is_joined = 1;
   pthread_mutex_unlock(job_data->mutex_for_wait_for_job);
 }
 
