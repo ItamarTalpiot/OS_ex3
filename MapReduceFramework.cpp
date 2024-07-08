@@ -74,9 +74,13 @@ void emit3 (K3* key, V3* value, void* context){
 }
 
 void getJobState(JobHandle job, JobState* state){
-  JobData* jb = (JobData*) job;
-  state->percentage = jb->job_state->percentage;
-  state->stage = jb->job_state->stage;
+    JobData* jb = (JobData*) job;
+    uint64_t counter = jb->atomic_counter->load();
+    stage_t stage = (stage_t) (counter & 3);
+    uint32_t processedKeys = (counter >> 2) & 0x7FFFFFFF;
+    uint32_t totalKeys = (counter >> 33) & 0x7FFFFFFF;
+    state->percentage = 100 * processedKeys / totalKeys < 100 ? 100 * processedKeys / totalKeys < 100 : 100;
+    state->stage = stage;
 }
 
 typedef struct thread_args{
@@ -192,11 +196,7 @@ void* thread_run(void* arguments)
     std::atomic<int>* curr_index = thread_context->curr_input_index;
     int old_value;
     int input_size = thread_context->input_size;
-    thread_context->job_state->stage = MAP_STAGE;
 
-    *thread_context->atomic_counter = (static_cast<uint64_t>(MAP_STAGE) & 3) |
-                                      (static_cast<uint64_t>(0) << 2) |
-                                      (static_cast<uint64_t>(input_size) << 33);
 
 //    std::cout << "running thread" << thread_id << std::endl;
 
@@ -210,13 +210,14 @@ void* thread_run(void* arguments)
         *thread_context->atomic_counter = (static_cast<uint64_t>(MAP_STAGE) & 3) |
                                           (static_cast<uint64_t>(curr_index->load()) << 2) |
                                           (static_cast<uint64_t>(input_size) << 33);
-
-        uint64_t counter = thread_context->atomic_counter->load();
-        uint32_t processedKeys = (counter >> 2) & 0x7FFFFFFF;
-        uint32_t totalKeys = (counter >> 33) & 0x7FFFFFFF;
+        thread_context->job_state->stage = MAP_STAGE;
+//        uint64_t counter = thread_context->atomic_counter->load();
+//        uint32_t processedKeys = (counter >> 2) & 0x7FFFFFFF;
+//        uint32_t totalKeys = (counter >> 33) & 0x7FFFFFFF;
 
 //        std::cout << "processed: " << processedKeys << " total: " << totalKeys << std::endl;
-        thread_context->job_state->percentage = 100 *(processedKeys) / (totalKeys);
+        thread_context->job_state->percentage = 100 *(curr_index->load()) / (input_size);
+        thread_context->job_state->stage = MAP_STAGE;
     }
 
 //    std::cout << "thread" << thread_id << "finished mapping" << std::endl;
@@ -229,19 +230,20 @@ void* thread_run(void* arguments)
     thread_context->barrier->barrier();
 //    std::cout << "enetring weird itamar thing after barrier" << thread_id << std::endl;
 
-    // changing to shuffle
-    uint64_t counter = thread_context->atomic_counter->load();
-    *thread_context->atomic_counter = (static_cast<uint64_t>(SHUFFLE_STAGE) & 3) |
-                                      (static_cast<uint64_t>(0) << 2) |
-                                      (static_cast<uint64_t>(thread_context->num_intermediate_elements->load()) << 33);
-  //shuffle if thread_id_is_0
 //    std::cout << "entering shuffle" << thread_id << std::endl;
     if(thread_context->thread_id == 0){
+        *thread_context->atomic_counter = (static_cast<uint64_t>(SHUFFLE_STAGE) & 3) |
+                                          (static_cast<uint64_t>(0) << 2) |
+                                          (static_cast<uint64_t>(thread_context->num_intermediate_elements->load()) << 33);
+
         thread_context->job_state->stage = SHUFFLE_STAGE;
         thread_context->job_state->percentage = 0;
         shuffle ((void*)thread_context);
 //        std::cout << "0 finished shuffle" << thread_id << std::endl;
         thread_context->job_state->percentage = 100;
+        *thread_context->atomic_counter = (static_cast<uint64_t>(REDUCE_STAGE) & 3) |
+                                          (static_cast<uint64_t>(0) << 2) |
+                                          (static_cast<uint64_t>(thread_context->num_intermediate_elements->load()) << 33);
     }
 
     thread_context->barrier->barrier();
@@ -256,7 +258,14 @@ void* thread_run(void* arguments)
             thread_context-> client->reduce (((thread_context->vectors_after_shuffle))->at(0), (void*)thread_context);
             *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle->at(0)->size();
             ((thread_context->vectors_after_shuffle))->erase(((thread_context->vectors_after_shuffle))->begin());
-            thread_context->job_state->percentage = 100*thread_context->reduce_running_index->load() / thread_context->num_intermediate_elements->load();
+
+            uint32_t processed_key = thread_context->reduce_running_index->load();
+            uint32_t total_keys = thread_context->num_intermediate_elements->load();
+            *thread_context->atomic_counter = (static_cast<uint64_t>(REDUCE_STAGE) & 3) |
+                                              (static_cast<uint64_t>(processed_key) << 2) |
+                                              (static_cast<uint64_t>(total_keys) << 33);
+            thread_context->job_state->percentage = 100*processed_key / total_keys;
+
         }
 //        std::cout << "exiting the mutex" << thread_id << std::endl;
         pthread_mutex_unlock (thread_context->mutex_on_reduce_stage);
@@ -288,6 +297,11 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
         delete(j_state);
         exit(1);
     }
+    job_data->atomic_counter = new std::atomic<uint64_t>(0);
+    int inputSize = inputVec.size();
+    *job_data->atomic_counter = (static_cast<uint64_t>(UNDEFINED_STAGE) & 3) |
+                                (static_cast<uint64_t>(0) << 2) |
+                                (static_cast<uint64_t>(inputSize) << 33);
 
     job_data->job_state = j_state;
     job_data->threads = threads;
@@ -303,7 +317,7 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     job_data->num_of_vectors_in_shuffle = new std::atomic<int>(0);
     job_data->num_of_shuffled_elements = new std::atomic<int>(0);
     job_data->is_joined = new std::atomic<int>(0);
-    job_data->atomic_counter = new std::atomic<uint64_t>(0);
+
 
     Barrier* barrier = new Barrier(multiThreadLevel);
 
@@ -315,7 +329,11 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
           exit (1);
       }
 
-    int inputSize = inputVec.size();
+
+
+    *job_data->atomic_counter = (static_cast<uint64_t>(MAP_STAGE) & 3) |
+                                (static_cast<uint64_t>(0) << 2) |
+                                (static_cast<uint64_t>(inputSize) << 33);
     for (int i = 0; i < multiThreadLevel; ++i)
     {
         ThreadContext* threadContext = new ThreadContext();
