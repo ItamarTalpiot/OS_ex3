@@ -46,6 +46,7 @@ typedef struct{
     std::atomic<int>* num_of_shuffled_elements;
     std::atomic<int>* is_joined;
     std::atomic<uint64_t>* atomic_counter;
+    pthread_mutex_t* mutex_for_wait_for_job;
 } JobData;
 
 
@@ -257,6 +258,7 @@ void* thread_run(void* arguments)
         if (!thread_context->vectors_after_shuffle->empty()){
             thread_context-> client->reduce (((thread_context->vectors_after_shuffle))->at(0), (void*)thread_context);
             *(thread_context->reduce_running_index)+= thread_context->vectors_after_shuffle->at(0)->size();
+            delete thread_context->vectors_after_shuffle->at(0);
             ((thread_context->vectors_after_shuffle))->erase(((thread_context->vectors_after_shuffle))->begin());
 
             uint32_t processed_key = thread_context->reduce_running_index->load();
@@ -272,6 +274,7 @@ void* thread_run(void* arguments)
     }
 
 //    std::cout << "finished all " << thread_id << std::endl;
+
 }
 
 JobHandle startMapReduceJob(const MapReduceClient& client,
@@ -280,7 +283,6 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
 {
 //    std::cout << "pita" << std::endl;
     pthread_t* threads = new pthread_t[multiThreadLevel];
-//    pthread_t threads[multiThreadLevel];
     JobState* j_state = new JobState();
     if (j_state == NULL) {
         print_system_error("Failed to allocate memory for JobState");
@@ -317,13 +319,20 @@ JobHandle startMapReduceJob(const MapReduceClient& client,
     job_data->num_of_vectors_in_shuffle = new std::atomic<int>(0);
     job_data->num_of_shuffled_elements = new std::atomic<int>(0);
     job_data->is_joined = new std::atomic<int>(0);
+    job_data->atomic_counter = new std::atomic<uint64_t>(0);
+    job_data->mutex_for_wait_for_job = new pthread_mutex_t();
+
+    if(pthread_mutex_init (job_data->mutex_for_wait_for_job, nullptr) != 0){
+        print_system_error ("mutex init error");
+        exit(1);
+    }
 
 
     Barrier* barrier = new Barrier(multiThreadLevel);
 
     pthread_mutex_t* mutex_on_reduce_stage = new pthread_mutex_t ();
 
-    if (pthread_mutex_init (mutex_on_reduce_stage, nullptr) != 0)
+  if (pthread_mutex_init (mutex_on_reduce_stage, nullptr) != 0)
       {
           print_system_error("mutex init error");
           exit (1);
@@ -375,13 +384,14 @@ void waitForJob(JobHandle job)
 {
     JobData* job_data = (JobData*) job;
     *job_data->is_joined = 1;
-
+    pthread_mutex_lock (job_data->mutex_for_wait_for_job);
     if (job_data->is_joined->load())
     {
         for (int i = 0; i < job_data->num_of_threads; ++i) {
             pthread_join(job_data->threads[i], NULL);
         }
     }
+  pthread_mutex_unlock(job_data->mutex_for_wait_for_job);
 }
 
 void closeJobHandle(JobHandle job)
@@ -399,29 +409,35 @@ void closeJobHandle(JobHandle job)
 
     if (job)
     {
-        if (job_data->threads)
-            delete[] job_data->threads;
-        if (job_data->job_state)
-            delete job_data->job_state;
+        delete job_data->vectors_after_shuffle;
+        delete[] job_data->threads;
+        delete job_data->job_state;
+        delete job_data->curr_input_index;
+        delete job_data->num_intermediate_elements;
+        delete job_data->num_output_elements;
+        delete job_data->reduce_running_index;
+        delete job_data->num_of_vectors_in_shuffle;
+        delete job_data->num_of_shuffled_elements;
+        delete job_data->is_joined;
+        delete job_data->atomic_counter;
+        delete job_data->mutex_for_wait_for_job;
 
         if (job_data->num_of_threads > 0){
             ThreadContext* curr_context = (*job_data->threads_context_map)[0];
             if (curr_context){
-              if(curr_context->barrier){
-                delete curr_context->barrier;
-              }
+              delete curr_context->barrier;
+              delete curr_context->mutex_on_reduce_stage;
             }
         }
 
         for (int i=0; i < job_data->num_of_threads; i++)
         {
             ThreadContext* curr_context = (*job_data->threads_context_map)[i];
-
-            if (curr_context)
-            {
-                delete curr_context;
-            }
+            delete curr_context->intermediate_vec;
+            delete curr_context;
         }
+        delete job_data->threads_context_map;
+
         delete job_data;
     }
 }
